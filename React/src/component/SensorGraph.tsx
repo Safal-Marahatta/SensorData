@@ -584,15 +584,20 @@ interface SensorGraphProps {
   data: SensorDataPoint[];
   lowThreshold: number;
   highThreshold: number;
+  text: string;
 }
 
 const SensorGraph: React.FC<SensorGraphProps> = ({
+  text,
   sensorId,
   data,
   lowThreshold,
   highThreshold,
 }) => {
   const [showAlarms, setShowAlarms] = useState(true);
+  const [emailAlert, setEmailAlert] = useState(true);
+  const [smsAlert, setSmsAlert] = useState(true);
+  const [sirenAlert, setSirenAlert] = useState(true);
 
   const chartData = {
     labels: data.map((point) =>
@@ -603,7 +608,8 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
         data: data.map((point) => point.value),
         fill: false,
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        borderColor: '#FFFF00',
+        // borderColor: '#FFFF00',
+        borderColor: '#00FF00',
         borderWidth: 2,
         tension: 0.4,
         pointRadius: 0,
@@ -620,7 +626,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    devicePixelRatio: 2,
+    devicePixelRatio: 3,
     plugins: {
       legend: { 
         display: false,
@@ -656,8 +662,8 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
           },
           highvandahigh: {
             type: 'line',
-            yMin: highThreshold+10,
-            yMax: highThreshold+10,
+            yMin: highThreshold + 10,
+            yMax: highThreshold + 10,
             borderColor: '#0000',
             borderWidth: 2,
             borderDash: [6, 4],
@@ -668,7 +674,6 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
     scales: {
       x: {
         grid: {
-          // color: 'rgba(75, 85, 99, 0.2)',
           color: '#818589',
           drawBorder: false,
         },
@@ -679,13 +684,12 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
           },
           maxRotation: 45,
           minRotation: 0,
-          maxTicksLimit: 10,
+          maxTicksLimit: 5,
           padding: 4,
         },
       },
       y: {
         grid: {
-          // color: 'rgba(75, 85, 99, 0.2)',
           color: `#818589`,
           drawBorder: false,
         },
@@ -698,7 +702,6 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
           maxTicksLimit: 8,
         },
         beginAtZero: true,
-        // max: 100,
       },
     },
     interaction: {
@@ -718,11 +721,11 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
       {/* Header */}
       <div className="flex justify-between items-center mb-1">
         <h4 className="text-sm font-bold text-white truncate">
-          Water Level at Salm
+          {text}
         </h4>
         {/* Live sensor value with high visibility */}
-        <div className="text-2xl font-abold text-yellow-200 px-3 py-0 rounded">
-          {latestValue !== null ? latestValue : '--'}
+        <div className="text-2xl font-bold font-mono text-yellow-300 bg-gray-900 px-5 py-0 rounded-lg shadow-[0_0_10px_rgba(255,215,0,0.8)] tracking-widest">
+          {latestValue !== null ? latestValue.toFixed(3) : '--'} <span className='text-sm'>masl</span>
         </div>
       </div>
 
@@ -731,13 +734,12 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
         <Line data={chartData} options={options} />
       </div>
 
-      {/* Bottom section with status indicators and toggle */}
+      {/* Bottom section with status indicators and toggle switches */}
       <div className="flex justify-between items-center mt-1">
         {/* Status Indicators arranged as: Low (circle), Normal (circle), High (circle) */}
         {showAlarms && (
           <div className="flex items-center space-x-4">
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-white">Low</span>
               <div
                 className={`w-4 h-4 rounded-full ${
                   lowBlink
@@ -745,9 +747,9 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
                     : 'bg-gray-600'
                 }`}
               />
+              <span className="text-[10px] text-white">Low</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-white">Normal</span>
               <div
                 className={`w-4 h-4 rounded-full ${
                   !lowBlink && !highBlink
@@ -755,9 +757,9 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
                     : 'bg-gray-600'
                 }`}
               />
+              <span className="text-[10px] text-white">Normal</span>
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[10px] text-white">High</span>
               <div
                 className={`w-4 h-4 rounded-full ${
                   highBlink
@@ -765,25 +767,76 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
                     : 'bg-gray-600'
                 }`}
               />
+              <span className="text-[10px] text-white">High</span>
             </div>
           </div>
         )}
-        {/* Toggle Switch with Alarm text */}
+        {/* Toggle Switches */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-white">Alarm Mode</span>
-          <button
-            onClick={() => setShowAlarms(!showAlarms)}
-            className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-green-500 ${
-              showAlarms ? 'bg-green-600' : 'bg-gray-600'
-            }`}
-          >
-            <span className="sr-only">Toggle alarms</span>
-            <span
-              className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
-                showAlarms ? 'translate-x-[22px]' : 'translate-x-0'
+          {/* <div className="flex items-center gap-2">
+            <span className="text-sm text-white">Alarm Mode</span>
+            <button
+              onClick={() => setShowAlarms(!showAlarms)}
+              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-green-500 ${
+                showAlarms ? 'bg-green-600' : 'bg-gray-600'
               }`}
-            />
-          </button>
+            >
+              <span className="sr-only">Toggle alarms</span>
+              <span
+                className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+                  showAlarms ? 'translate-x-[22px]' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div> */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-white"><span className='text-green-300 font-bold'>Alerts: &nbsp;&nbsp;</span>Email</span>
+            <button
+              onClick={() => setEmailAlert(!emailAlert)}
+              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+                emailAlert ? 'bg-green-600' : 'bg-gray-600'
+              }`}
+            >
+              <span className="sr-only">Toggle Email alert</span>
+              <span
+                className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+                  emailAlert ? 'translate-x-[22px]' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-white">SMS</span>
+            <button
+              onClick={() => setSmsAlert(!smsAlert)}
+              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+                smsAlert ? 'bg-green-600' : 'bg-gray-600'
+              }`}
+            >
+              <span className="sr-only">Toggle SMS alert</span>
+              <span
+                className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+                  smsAlert ? 'translate-x-[22px]' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-white">Siren</span>
+            <button
+              onClick={() => setSirenAlert(!sirenAlert)}
+              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+                sirenAlert ? 'bg-green-600' : 'bg-gray-600'
+              }`}
+            >
+              <span className="sr-only">Toggle Siren alert</span>
+              <span
+                className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+                  sirenAlert ? 'translate-x-[22px]' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -172,6 +172,7 @@ import Navbar from '../component/Navbar';
 import React, { useEffect, useState } from 'react';
 import SensorGraph from '../component/SensorGraph';
 import { SensorDataPoint } from '../component/SensorGraph';
+import DigitalClock from '../component/clock';
 
 interface SensorData {
   [sensorId: number]: SensorDataPoint[];
@@ -179,7 +180,6 @@ interface SensorData {
 
 const App: React.FC = () => {
   const [sensorData, setSensorData] = useState<SensorData>({});
-  const [currentTime, setCurrentTime] = useState(new Date());
 
   const fetchSensorData = async () => {
     try {
@@ -203,14 +203,33 @@ const App: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
 
-  const sensorIds = [1,2,3,4,];//get these dynamically from the database / backend
+  //const sensorIds = [1,2,3,4,];//get these dynamically from the database / backend
+
+  const sensors=[{
+    id:1,
+    text:"Water level at Intake"
+
+  },{
+    id:2,
+    text:"Water level at Desander"
+  },{
+    id:3,
+    text:"Water level at Headpond"
+  },{
+    id:4,
+    text:"Water level at Tailrace"
+  },{
+    id:5,
+    text:"Water level at Tailrace"
+  },
+  {
+    id:6,
+    text:"Water level at Tailrace"
+  }
+  
+
+  ]
 
   // Dynamic grid columns based on number of sensors
   const getGridCols = (sensorCount: number) => {
@@ -236,19 +255,15 @@ const App: React.FC = () => {
     <div className="flex flex-col h-screen">
       <Navbar />
       <div className="flex-1 bg-gray-700 p-1 flex flex-col min-h-0">
-        <div className="flex justify-center mb-2">
-          <div className="bg-indigo-600 px-4 py-1 rounded-full shadow-lg text-white text-sm font-semibold">
-            {currentTime.toLocaleString()}
-          </div>
-        </div>
-
-        <div className={`grid ${getGridCols(sensorIds.length)} ${getGridRows(sensorIds.length)} gap-4 flex-1`}>
-          {sensorIds.map((sensorId) => (
-            <div key={sensorId} className="relative w-full h-full">
+      <DigitalClock/>
+        <div className={`grid ${getGridCols(sensors.length)} ${getGridRows(sensors.length)} gap-4 flex-1`}>
+          {sensors.map((sensor) => (
+            <div key={sensor.id} className="relative w-full h-full">
               <div className="absolute inset-0">
                 <SensorGraph
-                  sensorId={sensorId}
-                  data={sensorData[sensorId] || []}
+                  sensorId={sensor.id}
+                  data={sensorData[sensor.id] || []}
+                  text={sensor.text}
                   lowThreshold={20}
                   highThreshold={80}
                 />

@@ -74,12 +74,14 @@ function Navbar() {
   ];
 
   return (
-    <nav className="bg-blue-900 border-b border-blue-800">
+    <nav className="bg-black border-b border-blue-800">
       <div className="max-w-7xl mx-auto px-2">
         <div className="flex justify-between h-12">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <span className="text-lg font-bold text-blue-300">Data Acquisition and Management Software</span>
+              <span className="text-lg font-bold text-blue-300">
+                DATA ACQUISITION AND MANAGEMENT SOFTWARE -DAMS
+              </span>
             </Link>
           </div>
 
@@ -105,6 +107,8 @@ function Navbar() {
               <LogOut className="h-4 w-4 mr-1" />
               Logout
             </button>
+            {/* Copyright message */}
+            <span className="ml-3 text-sm text-white">© IES, 2025</span>
           </div>
         </div>
       </div>
