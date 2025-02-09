@@ -210,7 +210,7 @@ const App: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const sensorIds = [1,2,3,4,5];//get these dynamically from the database / backend
+  const sensorIds = [1,2,3];//get these dynamically from the database / backend
 
   // Dynamic grid columns based on number of sensors
   const getGridCols = (sensorCount: number) => {
@@ -235,7 +235,7 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       <Navbar />
-      <div className="flex-1 bg-gray-900 p-1 flex flex-col min-h-0">
+      <div className="flex-1 bg-gray-700 p-1 flex flex-col min-h-0">
         <div className="flex justify-center mb-2">
           <div className="bg-indigo-600 px-4 py-1 rounded-full shadow-lg text-white text-sm font-semibold">
             {currentTime.toLocaleString()}

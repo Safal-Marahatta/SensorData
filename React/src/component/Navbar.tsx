@@ -79,7 +79,7 @@ function Navbar() {
         <div className="flex justify-between h-12">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <span className="text-lg font-bold text-blue-300">DAMS</span>
+              <span className="text-lg font-bold text-blue-300">Data Acquisition and Management Software</span>
             </Link>
           </div>
 
