@@ -601,9 +601,9 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
     datasets: [
       {
         data: data.map((point) => point.value),
-        fill: true,
+        fill: false,
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        borderColor: '#3B82F6',
+        borderColor: '#FFFF00',
         borderWidth: 2,
         tension: 0.4,
         pointRadius: 0,
@@ -654,6 +654,14 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
             borderWidth: 2,
             borderDash: [6, 4],
           },
+          highvandahigh: {
+            type: 'line',
+            yMin: highThreshold+10,
+            yMax: highThreshold+10,
+            borderColor: '#0000',
+            borderWidth: 2,
+            borderDash: [6, 4],
+          },
         } : {},
       },
     },
@@ -690,6 +698,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
           maxTicksLimit: 8,
         },
         beginAtZero: true,
+        // max: 100,
       },
     },
     interaction: {
@@ -761,7 +770,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
         )}
         {/* Toggle Switch with Alarm text */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-white">Alarm</span>
+          <span className="text-sm text-white">Alarm Mode</span>
           <button
             onClick={() => setShowAlarms(!showAlarms)}
             className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-green-500 ${

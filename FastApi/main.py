@@ -18,6 +18,15 @@ import models
 #----cors Header-----
 from fastapi.middleware.cors import CORSMiddleware
 
+####################################this is for creating the database that is defined in the models.py
+from database import engine, SessionLocal
+import models
+
+# Create all database tables
+models.Base.metadata.create_all(bind=engine)
+
+######################################################################################################
+
 app = FastAPI()
 
 # Define the origins that are allowed to access your backend
@@ -237,12 +246,12 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
     for sensor_id in range(1, 8):
         readings = []
         now = datetime.utcnow()  # Using UTC for timestamps
-        # Generate 50 readings per sensor.
+        # Generate 100 readings per sensor.
         for i in range(100):
             # For a historical feel, spread timestamps over the last 50 seconds.
             reading_time = now - timedelta(seconds=50 - i)
             reading = SensorReading(
-                value=random.uniform(0, 100),  # Random value between 0 and 100
+                value=random.uniform(50, 52),  # Random value between 0 and 100
                 sensorid=sensor_id,
                 timestamp=reading_time.isoformat() + "Z"  # Append "Z" to indicate UTC
             )

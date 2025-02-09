@@ -210,7 +210,7 @@ const App: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const sensorIds = [1,2,3];//get these dynamically from the database / backend
+  const sensorIds = [1,2,3,4,];//get these dynamically from the database / backend
 
   // Dynamic grid columns based on number of sensors
   const getGridCols = (sensorCount: number) => {
