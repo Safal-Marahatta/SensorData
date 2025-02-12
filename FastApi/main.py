@@ -261,6 +261,8 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
 
 
 
+
+
 # ===============================
 # NEW: Settings endpoints
 # ===============================
