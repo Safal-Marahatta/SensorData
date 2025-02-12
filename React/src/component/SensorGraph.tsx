@@ -1,569 +1,282 @@
-// // // import React from 'react';
-// // // import { Line } from 'react-chartjs-2';
-// // // import { Chart, registerables } from 'chart.js';
-// // // import annotationPlugin from 'chartjs-plugin-annotation';
+// import React, { useState } from 'react';
+// import { Line } from 'react-chartjs-2';
+// import { Chart, registerables } from 'chart.js';
+// import annotationPlugin from 'chartjs-plugin-annotation';
 
-// // // Chart.register(...registerables, annotationPlugin);
+// Chart.register(...registerables, annotationPlugin);
 
-// // // export interface SensorDataPoint {
-// // //   value: number;
-// // //   sensorid: number;
-// // //   timestamp: string;
-// // // }
+// export interface SensorDataPoint {
+//   value: number;
+//   sensorid: number;
+//   timestamp: string;
+// }
 
-// // // interface SensorGraphProps {
-// // //   sensorId: number;
-// // //   data: SensorDataPoint[];
-// // //   lowThreshold: number;
-// // //   highThreshold: number;
-// // // }
+// interface SensorGraphProps {
+//   sensorId: number;
+//   data: SensorDataPoint[];
+//   lowThreshold: number;
+//   highThreshold: number;
+//   text: string;
+// }
 
-// // // const SensorGraph: React.FC<SensorGraphProps> = ({
-// // //   sensorId,
-// // //   data,
-// // //   lowThreshold,
-// // //   highThreshold,
-// // // }) => {
-// // //   const chartData = {
-// // //     labels: data.map((point) =>
-// // //       new Date(point.timestamp).toLocaleTimeString()
-// // //     ),
-// // //     datasets: [
-// // //       {
-// // //         // label: `Sensor ${sensorId}`,
-// // //         data: data.map((point) => point.value),
-// // //         fill: true,
-// // //         backgroundColor: 'rgba(59, 130, 246, 0.1)', // Light blue background
-// // //         borderColor: '#3B82F6', // Solid blue line
-// // //         borderWidth: 2,
-// // //         tension: 0.4, // Smoother curve
-// // //         pointRadius: 0,
-// // //         pointBackgroundColor: '#3B82F6',
-// // //         pointBorderColor: '#fff',
-// // //         pointHoverRadius: 2,
-// // //         pointHoverBackgroundColor: '#3B82F6',
-// // //         pointHoverBorderColor: '#fff',
-// // //         pointHoverBorderWidth: 2,
-// // //       },
-// // //     ],
-// // //   };
+// const SensorGraph: React.FC<SensorGraphProps> = ({
+//   text,
+//   sensorId,
+//   data,
+//   lowThreshold,
+//   highThreshold,
+// }) => {
+//   const [showAlarms, setShowAlarms] = useState(true);
+//   const [emailAlert, setEmailAlert] = useState(true);
+//   const [smsAlert, setSmsAlert] = useState(true);
+//   const [sirenAlert, setSirenAlert] = useState(true);
 
-// // //   const options = {
-// // //     responsive: true,
-// // //     maintainAspectRatio: false,
-// // //     devicePixelRatio: 2,
-// // //     plugins: {
-// // //       legend: { 
-// // //         display: false,
-// // //         labels: {
-// // //           color: '#E5E7EB',
-// // //           font: {
-// // //             size: 12,
-// // //             weight: 'bold'
-// // //           }
-// // //         }
-// // //       },
-// // //       tooltip: {
-// // //         mode: 'index',
-// // //         intersect: false,
-// // //         backgroundColor: 'rgba(17, 24, 39, 0.8)',
-// // //         titleColor: '#fff',
-// // //         bodyColor: '#fff',
-// // //         borderColor: '#374151',
-// // //         borderWidth: 1,
-// // //         padding: 12,
-// // //         displayColors: false,
-// // //       },
-// // //       annotation: {
-// // //         annotations: {
-// // //           lowThresholdLine: {
-// // //             type: 'line',
-// // //             yMin: lowThreshold,
-// // //             yMax: lowThreshold,
-// // //             borderColor: 'rgba(239, 68, 68, 0.6)', // Red with transparency
-// // //             borderWidth: 2,
-// // //             borderDash: [6, 4],
-// // //           },
-// // //           highThresholdLine: {
-// // //             type: 'line',
-// // //             yMin: highThreshold,
-// // //             yMax: highThreshold,
-// // //             borderColor: 'rgba(239, 68, 68, 0.6)',
-// // //             borderWidth: 2,
-// // //             borderDash: [6, 4],
-// // //           },
-// // //         },
-// // //       },
-// // //     },
-// // //     scales: {
-// // //       x: {
-// // //         grid: {
-// // //           color: 'rgba(75, 85, 99, 0.2)',
-// // //           drawBorder: false,
-// // //         },
-// // //         ticks: {
-// // //           color: '#E5E7EB',
-// // //           font: {
-// // //             size: 11
-// // //           },
-// // //           maxRotation: 45,
-// // //           minRotation: 45
-// // //         }
-// // //       },
-// // //       y: {
-// // //         grid: {
-// // //           color: 'rgba(75, 85, 99, 0.2)',
-// // //           drawBorder: false,
-// // //         },
-// // //         ticks: {
-// // //           color: '#E5E7EB',
-// // //           font: {
-// // //             size: 11
-// // //           },
-// // //           padding: 8
-// // //         },
-// // //         beginAtZero: true
-// // //       }
-// // //     },
-// // //     interaction: {
-// // //       mode: 'nearest',
-// // //       axis: 'x',
-// // //       intersect: false
-// // //     },
-// // //   };
+//   const chartData = {
+//     labels: data.map((point) =>
+//       new Date(point.timestamp).toLocaleTimeString()
+//     ),
+//     datasets: [
+//       {
+//         data: data.map((point) => point.value),
+//         fill: false,
+//         backgroundColor: 'rgba(59, 130, 246, 0.1)',
+//         // borderColor: '#FFFF00',
+//         borderColor: '#00FF00',
+//         borderWidth: 2,
+//         tension: 0.4,
+//         pointRadius: 0,
+//         pointBackgroundColor: '#3B82F6',
+//         pointBorderColor: '#fff',
+//         pointHoverRadius: 2,
+//         pointHoverBackgroundColor: '#3B82F6',
+//         pointHoverBorderColor: '#fff',
+//         pointHoverBorderWidth: 2,
+//       },
+//     ],
+//   };
 
-// // //   const latestValue = data.length > 0 ? data[data.length - 1].value : null;
-// // //   const lowBlink = latestValue !== null && latestValue < lowThreshold;
-// // //   const highBlink = latestValue !== null && latestValue > highThreshold;
+//   const options = {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     devicePixelRatio: 3,
+//     plugins: {
+//       legend: { 
+//         display: false,
+//       },
+//       tooltip: {
+//         mode: 'index',
+//         intersect: false,
+//         backgroundColor: 'rgba(17, 24, 39, 0.8)',
+//         titleColor: '#fff',
+//         bodyColor: '#fff',
+//         borderColor: '#374151',
+//         borderWidth: 1,
+//         padding: 8,
+//         displayColors: false,
+//       },
+//       annotation: {
+//         annotations: showAlarms ? {
+//           lowThresholdLine: {
+//             type: 'line',
+//             yMin: lowThreshold,
+//             yMax: lowThreshold,
+//             borderColor: 'rgba(255, 0, 0, 1)',
+//             borderWidth: 2,
+//             borderDash: [6, 4],
+//           },
+//           highThresholdLine: {
+//             type: 'line',
+//             yMin: highThreshold,
+//             yMax: highThreshold,
+//             borderColor: 'rgba(255, 0, 0, 1)',
+//             borderWidth: 2,
+//             borderDash: [6, 4],
+//           },
+//           highvandahigh: {
+//             type: 'line',
+//             yMin: highThreshold + 10,
+//             yMax: highThreshold + 10,
+//             borderColor: '#0000',
+//             borderWidth: 2,
+//             borderDash: [6, 4],
+//           },
+//         } : {},
+//       },
+//     },
+//     scales: {
+//       x: {
+//         grid: {
+//           color: '#818589',
+//           drawBorder: false,
+//         },
+//         ticks: {
+//           color: '#fff',
+//           font: {
+//             size: 10,
+//           },
+//           maxRotation: 45,
+//           minRotation: 0,
+//           maxTicksLimit: 5,
+//           padding: 4,
+//         },
+//       },
+//       y: {
+//         grid: {
+//           color: `#818589`,
+//           drawBorder: false,
+//         },
+//         ticks: {
+//           color: '#fff',
+//           font: {
+//             size: 5,
+//           },
+//           padding: 10,
+//           maxTicksLimit: 8,
+//         },
+//         beginAtZero: true,
+//       },
+//     },
+//     interaction: {
+//       mode: 'nearest',
+//       axis: 'x',
+//       intersect: false,
+//     },
+//   };
 
-// // //   return (
-// // //     <div className="bg-gray-900 border border-gray-700 rounded-xl shadow-xl p-0 ">
-// // //       <div className="flex flex-col space-y-4">
-// // //         {/* Header */}
-// // //         <div className="flex justify-between items-center">
-// // //           <h4 className="text-l font-bold text-white">Water Level at Salm</h4>
-// // //           <div className="text-sm font-medium text-gray-400">
-// // //             Sensor ID: {sensorId}
-// // //           </div>
-// // //         </div>
+//   // Get the latest sensor value from the data array.
+//   const latestValue = data.length > 0 ? data[data.length - 1].value : null;
+//   const lowBlink = latestValue !== null && latestValue < lowThreshold;
+//   const highBlink = latestValue !== null && latestValue > highThreshold;
 
-// // //         {/* Chart Container with increased height */}
-// // //         <div className="w-full h-64 m-0">
-// // //           <Line data={chartData} options={options} />
-// // //         </div>
+//   return (
+//     <div className="h-full bg-gray-900 border border-white rounded-xl shadow-xl flex flex-col p-1">
+//       {/* Header */}
+//       <div className="flex justify-between items-center mb-1">
+//         <h4 className="text-sm font-bold text-white truncate">
+//           {text}
+//         </h4>
+//         {/* Live sensor value with high visibility */}
+//         <div className="text-2xl font-bold font-mono text-yellow-300 bg-gray-900 px-5 py-0 rounded-lg shadow-[0_0_10px_rgba(255,215,0,0.8)] tracking-widest">
+//           {latestValue !== null ? latestValue.toFixed(3) : '--'} <span className='text-sm'>masl</span>
+//         </div>
+//       </div>
 
-// // //         {/* Status Indicators with Glowing Circles */}
-// // //         <div className="flex justify-between items-center mt-4 px-4">
-// // //           <div className="flex flex-col items-center gap-2">
-// // //             <div
-// // //               className={`w-4 h-4 rounded-full ${
-// // //                 lowBlink
-// // //                   ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-glow'
-// // //                   : 'bg-gray-600'
-// // //               }`}
-// // //             />
-// // //             <span className="text-xs text-gray-400">Low</span>
-// // //           </div>
-// // //           <div className="flex flex-col items-center gap-2">
-// // //             <div
-// // //               className={`w-4 h-4 rounded-full ${
-// // //                 !lowBlink && !highBlink
-// // //                   ? 'bg-green-500 shadow-lg shadow-green-500/50 animate-glow'
-// // //                   : 'bg-gray-600'
-// // //               }`}
-// // //             />
-// // //             <span className="text-xs text-gray-400">Normal</span>
-// // //           </div>
-// // //           <div className="flex flex-col items-center gap-2">
-// // //             <div
-// // //               className={`w-4 h-4 rounded-full ${
-// // //                 highBlink
-// // //                   ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-glow'
-// // //                   : 'bg-gray-600'
-// // //               }`}
-// // //             />
-// // //             <span className="text-xs text-gray-400">High</span>
-// // //           </div>
-// // //         </div>
-// // //       </div>
-// // //     </div>
-// // //   );
-// // // };
+//       {/* Chart */}
+//       <div className="flex-1 min-h-0">
+//         <Line data={chartData} options={options} />
+//       </div>
 
-// // // export default SensorGraph;
+//       {/* Bottom section with status indicators and toggle switches */}
+//       <div className="flex justify-between items-center mt-1">
+//         {/* Status Indicators arranged as: Low (circle), Normal (circle), High (circle) */}
+//         {showAlarms && (
+//           <div className="flex items-center space-x-4">
+//             <div className="flex items-center gap-1">
+//               <div
+//                 className={`w-4 h-4 rounded-full ${
+//                   lowBlink
+//                     ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-glow'
+//                     : 'bg-gray-600'
+//                 }`}
+//               />
+//               <span className="text-[10px] text-white">Low</span>
+//             </div>
+//             <div className="flex items-center gap-1">
+//               <div
+//                 className={`w-4 h-4 rounded-full ${
+//                   !lowBlink && !highBlink
+//                     ? 'bg-green-500 shadow-lg shadow-green-500/50 animate-glow'
+//                     : 'bg-gray-600'
+//                 }`}
+//               />
+//               <span className="text-[10px] text-white">Normal</span>
+//             </div>
+//             <div className="flex items-center gap-1">
+//               <div
+//                 className={`w-4 h-4 rounded-full ${
+//                   highBlink
+//                     ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-glow'
+//                     : 'bg-gray-600'
+//                 }`}
+//               />
+//               <span className="text-[10px] text-white">High</span>
+//             </div>
+//           </div>
+//         )}
+//         {/* Toggle Switches */}
+//         <div className="flex items-center gap-2">
+//           {/* <div className="flex items-center gap-2">
+//             <span className="text-sm text-white">Alarm Mode</span>
+//             <button
+//               onClick={() => setShowAlarms(!showAlarms)}
+//               className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-green-500 ${
+//                 showAlarms ? 'bg-green-600' : 'bg-gray-600'
+//               }`}
+//             >
+//               <span className="sr-only">Toggle alarms</span>
+//               <span
+//                 className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+//                   showAlarms ? 'translate-x-[22px]' : 'translate-x-0'
+//                 }`}
+//               />
+//             </button>
+//           </div> */}
+//           <div className="flex items-center gap-2">
+//             <span className="text-[10px] text-white"><span className='text-green-300 font-bold'>Alerts: &nbsp;&nbsp;</span>Email</span>
+//             <button
+//               onClick={() => setEmailAlert(!emailAlert)}
+//               className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+//                 emailAlert ? 'bg-green-600' : 'bg-gray-600'
+//               }`}
+//             >
+//               <span className="sr-only">Toggle Email alert</span>
+//               <span
+//                 className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+//                   emailAlert ? 'translate-x-[22px]' : 'translate-x-0'
+//                 }`}
+//               />
+//             </button>
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <span className="text-[10px] text-white">SMS</span>
+//             <button
+//               onClick={() => setSmsAlert(!smsAlert)}
+//               className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+//                 smsAlert ? 'bg-green-600' : 'bg-gray-600'
+//               }`}
+//             >
+//               <span className="sr-only">Toggle SMS alert</span>
+//               <span
+//                 className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+//                   smsAlert ? 'translate-x-[22px]' : 'translate-x-0'
+//                 }`}
+//               />
+//             </button>
+//           </div>
+//           <div className="flex items-center gap-2">
+//             <span className="text-[10px] text-white">Siren</span>
+//             <button
+//               onClick={() => setSirenAlert(!sirenAlert)}
+//               className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+//                 sirenAlert ? 'bg-green-600' : 'bg-gray-600'
+//               }`}
+//             >
+//               <span className="sr-only">Toggle Siren alert</span>
+//               <span
+//                 className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+//                   sirenAlert ? 'translate-x-[22px]' : 'translate-x-0'
+//                 }`}
+//               />
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
-// // // import React from 'react';
-// // // import { Line } from 'react-chartjs-2';
-// // // import { Chart, registerables } from 'chart.js';
-// // // import annotationPlugin from 'chartjs-plugin-annotation';
+// export default SensorGraph;
 
-// // // Chart.register(...registerables, annotationPlugin);
-
-// // // export interface SensorDataPoint {
-// // //   value: number;
-// // //   sensorid: number;
-// // //   timestamp: string;
-// // // }
-
-// // // interface SensorGraphProps {
-// // //   sensorId: number;
-// // //   data: SensorDataPoint[];
-// // //   lowThreshold: number;
-// // //   highThreshold: number;
-// // // }
-
-// // // const SensorGraph: React.FC<SensorGraphProps> = ({
-// // //   sensorId,
-// // //   data,
-// // //   lowThreshold,
-// // //   highThreshold,
-// // // }) => {
-// // //   const chartData = {
-// // //     labels: data.map((point) =>
-// // //       new Date(point.timestamp).toLocaleTimeString()
-// // //     ),
-// // //     datasets: [
-// // //       {
-// // //         data: data.map((point) => point.value),
-// // //         fill: true,
-// // //         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-// // //         borderColor: '#3B82F6',
-// // //         borderWidth: 2,
-// // //         tension: 0.4,
-// // //         pointRadius: 0,
-// // //         pointBackgroundColor: '#3B82F6',
-// // //         pointBorderColor: '#fff',
-// // //         pointHoverRadius: 2,
-// // //         pointHoverBackgroundColor: '#3B82F6',
-// // //         pointHoverBorderColor: '#fff',
-// // //         pointHoverBorderWidth: 2,
-// // //       },
-// // //     ],
-// // //   };
-
-// // //   const options = {
-// // //     responsive: true,
-// // //     maintainAspectRatio: false,
-// // //     devicePixelRatio: 2,
-// // //     plugins: {
-// // //       legend: { 
-// // //         display: false,
-// // //       },
-// // //       tooltip: {
-// // //         mode: 'index',
-// // //         intersect: false,
-// // //         backgroundColor: 'rgba(17, 24, 39, 0.8)',
-// // //         titleColor: '#fff',
-// // //         bodyColor: '#fff',
-// // //         borderColor: '#374151',
-// // //         borderWidth: 1,
-// // //         padding: 8,
-// // //         displayColors: false,
-// // //       },
-// // //       annotation: {
-// // //         annotations: {
-// // //           lowThresholdLine: {
-// // //             type: 'line',
-// // //             yMin: lowThreshold,
-// // //             yMax: lowThreshold,
-// // //             borderColor: 'rgba(239, 68, 68, 0.6)',
-// // //             borderWidth: 2,
-// // //             borderDash: [6, 4],
-// // //           },
-// // //           highThresholdLine: {
-// // //             type: 'line',
-// // //             yMin: highThreshold,
-// // //             yMax: highThreshold,
-// // //             borderColor: 'rgba(239, 68, 68, 0.6)',
-// // //             borderWidth: 2,
-// // //             borderDash: [6, 4],
-// // //           },
-// // //         },
-// // //       },
-// // //     },
-// // //     scales: {
-// // //       x: {
-// // //         grid: {
-// // //           color: 'rgba(75, 85, 99, 0.2)',
-// // //           drawBorder: false,
-// // //         },
-// // //         ticks: {
-// // //           color: '#E5E7EB',
-// // //           font: {
-// // //             size: 10
-// // //           },
-// // //           maxRotation: 45,
-// // //           minRotation: 45,
-// // //           maxTicksLimit: 8,
-// // //           padding: 4
-// // //         }
-// // //       },
-// // //       y: {
-// // //         grid: {
-// // //           color: 'rgba(75, 85, 99, 0.2)',
-// // //           drawBorder: false,
-// // //         },
-// // //         ticks: {
-// // //           color: '#E5E7EB',
-// // //           font: {
-// // //             size: 8
-// // //           },
-// // //           padding: 4,
-// // //           maxTicksLimit: 6
-// // //         },
-// // //         beginAtZero: true
-// // //       }
-// // //     },
-// // //     interaction: {
-// // //       mode: 'nearest',
-// // //       axis: 'x',
-// // //       intersect: false
-// // //     },
-// // //   };
-
-// // //   const latestValue = data.length > 0 ? data[data.length - 1].value : null;
-// // //   const lowBlink = latestValue !== null && latestValue < lowThreshold;
-// // //   const highBlink = latestValue !== null && latestValue > highThreshold;
-
-// // //   return (
-// // //     <div className="h-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl flex flex-col p-2">
-// // //       <div className="flex justify-between items-center mb-1">
-// // //         <h4 className="text-sm font-bold text-white truncate">Water Level at Salm</h4>
-// // //         <div className="text-xs font-medium text-gray-400">
-// // //           Sensor {sensorId}
-// // //         </div>
-// // //       </div>
-
-// // //       <div className="flex-1 min-h-0">
-// // //         <Line data={chartData} options={options} />
-// // //       </div>
-
-// // //       <div className="flex justify-between items-center mt-1 px-2">
-// // //         <div className="flex flex-col items-center gap-1">
-// // //           <div
-// // //             className={`w-2 h-2 rounded-full ${
-// // //               lowBlink
-// // //                 ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-glow'
-// // //                 : 'bg-gray-600'
-// // //             }`}
-// // //           />
-// // //           <span className="text-[10px] text-gray-400">Low</span>
-// // //         </div>
-// // //         <div className="flex flex-col items-center gap-1">
-// // //           <div
-// // //             className={`w-2 h-2 rounded-full ${
-// // //               !lowBlink && !highBlink
-// // //                 ? 'bg-green-500 shadow-lg shadow-green-500/50 animate-glow'
-// // //                 : 'bg-gray-600'
-// // //             }`}
-// // //           />
-// // //           <span className="text-[10px] text-gray-400">Normal</span>
-// // //         </div>
-// // //         <div className="flex flex-col items-center gap-1">
-// // //           <div
-// // //             className={`w-2 h-2 rounded-full ${
-// // //               highBlink
-// // //                 ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-glow'
-// // //                 : 'bg-gray-600'
-// // //             }`}
-// // //           />
-// // //           <span className="text-[10px] text-gray-400">High</span>
-// // //         </div>
-// // //       </div>
-// // //     </div>
-// // //   );
-// // // };
-
-// // // export default SensorGraph;
-
-// // import React from 'react';
-// // import { Line } from 'react-chartjs-2';
-// // import { Chart, registerables } from 'chart.js';
-// // import annotationPlugin from 'chartjs-plugin-annotation';
-
-// // Chart.register(...registerables, annotationPlugin);
-
-// // export interface SensorDataPoint {
-// //   value: number;
-// //   sensorid: number;
-// //   timestamp: string;
-// // }
-
-// // interface SensorGraphProps {
-// //   sensorId: number;
-// //   data: SensorDataPoint[];
-// //   lowThreshold: number;
-// //   highThreshold: number;
-// // }
-
-// // const SensorGraph: React.FC<SensorGraphProps> = ({
-// //   sensorId,
-// //   data,
-// //   lowThreshold,
-// //   highThreshold,
-// // }) => {
-// //   const chartData = {
-// //     labels: data.map((point) =>
-// //       new Date(point.timestamp).toLocaleTimeString()
-// //     ),
-// //     datasets: [
-// //       {
-// //         data: data.map((point) => point.value),
-// //         fill: true,
-// //         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-// //         borderColor: '#3B82F6',
-// //         borderWidth: 2,
-// //         tension: 0.4,
-// //         pointRadius: 0,
-// //         pointBackgroundColor: '#3B82F6',
-// //         pointBorderColor: '#fff',
-// //         pointHoverRadius: 2,
-// //         pointHoverBackgroundColor: '#3B82F6',
-// //         pointHoverBorderColor: '#fff',
-// //         pointHoverBorderWidth: 2,
-// //       },
-// //     ],
-// //   };
-
-// //   const options = {
-// //     responsive: true,
-// //     maintainAspectRatio: false,
-// //     devicePixelRatio: 2,
-// //     plugins: {
-// //       legend: { 
-// //         display: false,
-// //       },
-// //       tooltip: {
-// //         mode: 'index',
-// //         intersect: false,
-// //         backgroundColor: 'rgba(17, 24, 39, 0.8)',
-// //         titleColor: '#fff',
-// //         bodyColor: '#fff',
-// //         borderColor: '#374151',
-// //         borderWidth: 1,
-// //         padding: 8,
-// //         displayColors: false,
-// //       },
-// //       annotation: {
-// //         annotations: {
-// //           lowThresholdLine: {
-// //             type: 'line',
-// //             yMin: lowThreshold,
-// //             yMax: lowThreshold,
-// //             borderColor: 'rgba(239, 68, 68, 0.6)',
-// //             borderWidth: 2,
-// //             borderDash: [6, 4],
-// //           },
-// //           highThresholdLine: {
-// //             type: 'line',
-// //             yMin: highThreshold,
-// //             yMax: highThreshold,
-// //             borderColor: 'rgba(239, 68, 68, 0.6)',
-// //             borderWidth: 2,
-// //             borderDash: [6, 4],
-// //           },
-// //         },
-// //       },
-// //     },
-// //     scales: {
-// //       x: {
-// //         grid: {
-// //           color: 'rgba(75, 85, 99, 0.2)',
-// //           drawBorder: false,
-// //         },
-// //         ticks: {
-// //           color: '#E5E7EB',
-// //           font: {
-// //             size: 10,
-// //           },
-// //           maxRotation: 45,
-// //           minRotation: 45,
-// //           maxTicksLimit: 8,
-// //           padding: 4,
-// //         },
-// //       },
-// //       y: {
-// //         grid: {
-// //           color: 'rgba(75, 85, 99, 0.2)',
-// //           drawBorder: false,
-// //         },
-// //         ticks: {
-// //           color: '#E5E7EB',
-// //           font: {
-// //             size: 5,
-// //           },
-// //           padding: 4,
-// //           maxTicksLimit: 6,
-// //         },
-// //         beginAtZero: true,
-// //       },
-// //     },
-// //     interaction: {
-// //       mode: 'nearest',
-// //       axis: 'x',
-// //       intersect: false,
-// //     },
-// //   };
-
-// //   // Get the latest sensor value from the data array.
-// //   const latestValue = data.length > 0 ? data[data.length - 1].value : null;
-// //   const lowBlink = latestValue !== null && latestValue < lowThreshold;
-// //   const highBlink = latestValue !== null && latestValue > highThreshold;
-
-// //   return (
-// //     <div className="h-full bg-gray-900 border border-gray-700 rounded-xl shadow-xl flex flex-col p-2">
-// //       {/* Header */}
-// //       <div className="flex justify-between items-center mb-1">
-// //         <h4 className="text-sm font-bold text-white truncate">
-// //           Water Level at Salm
-// //         </h4>
-// //         {/* Live sensor value with high visibility */}
-// //         <div className="text-2xl font-abold text-yellow-200 px-3 py-0 rounded">
-// //           {latestValue !== null ? latestValue : '--'}
-// //         </div>
-// //       </div>
-
-// //       {/* Chart */}
-// //       <div className="flex-1 min-h-0">
-// //         <Line data={chartData} options={options} />
-// //       </div>
-
-// //       {/* Status Indicators arranged as: Low (circle), Normal (circle), High (circle) */}
-// //       <div className="flex justify-center items-center mt-1 space-x-4">
-// //         <div className="flex items-center gap-1">
-// //           <span className="text-[10px] text-white">Low</span>
-// //           <div
-// //             className={`w-4 h-4 rounded-full ${
-// //               lowBlink
-// //                 ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-glow'
-// //                 : 'bg-gray-600'
-// //             }`}
-// //           />
-// //         </div>
-// //         <div className="flex items-center gap-1">
-// //           <span className="text-[10px] text-white">Normal</span>
-// //           <div
-// //             className={`w-4 h-4 rounded-full ${
-// //               !lowBlink && !highBlink
-// //                 ? 'bg-green-500 shadow-lg shadow-green-500/50 animate-glow'
-// //                 : 'bg-gray-600'
-// //             }`}
-// //           />
-// //         </div>
-// //         <div className="flex items-center gap-1">
-// //           <span className="text-[10px] text-white">High</span>
-// //           <div
-// //             className={`w-4 h-4 rounded-full ${
-// //               highBlink
-// //                 ? 'bg-red-500 shadow-lg shadow-red-500/50 animate-glow'
-// //                 : 'bg-gray-600'
-// //             }`}
-// //           />
-// //         </div>
-// //       </div>
-// //     </div>
-// //   );
-// // };
 
 
 import React, { useState } from 'react';
@@ -598,6 +311,8 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
   const [emailAlert, setEmailAlert] = useState(true);
   const [smsAlert, setSmsAlert] = useState(true);
   const [sirenAlert, setSirenAlert] = useState(true);
+  // New state for Online Data Hosting toggle
+  const [onlineDataHosting, setOnlineDataHosting] = useState(true);
 
   const chartData = {
     labels: data.map((point) =>
@@ -608,7 +323,6 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
         data: data.map((point) => point.value),
         fill: false,
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        // borderColor: '#FFFF00',
         borderColor: '#00FF00',
         borderWidth: 2,
         tension: 0.4,
@@ -628,9 +342,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
     maintainAspectRatio: false,
     devicePixelRatio: 3,
     plugins: {
-      legend: { 
-        display: false,
-      },
+      legend: { display: false },
       tooltip: {
         mode: 'index',
         intersect: false,
@@ -643,32 +355,34 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
         displayColors: false,
       },
       annotation: {
-        annotations: showAlarms ? {
-          lowThresholdLine: {
-            type: 'line',
-            yMin: lowThreshold,
-            yMax: lowThreshold,
-            borderColor: 'rgba(255, 0, 0, 1)',
-            borderWidth: 2,
-            borderDash: [6, 4],
-          },
-          highThresholdLine: {
-            type: 'line',
-            yMin: highThreshold,
-            yMax: highThreshold,
-            borderColor: 'rgba(255, 0, 0, 1)',
-            borderWidth: 2,
-            borderDash: [6, 4],
-          },
-          highvandahigh: {
-            type: 'line',
-            yMin: highThreshold + 10,
-            yMax: highThreshold + 10,
-            borderColor: '#0000',
-            borderWidth: 2,
-            borderDash: [6, 4],
-          },
-        } : {},
+        annotations: showAlarms
+          ? {
+              lowThresholdLine: {
+                type: 'line',
+                yMin: lowThreshold,
+                yMax: lowThreshold,
+                borderColor: 'rgba(255, 0, 0, 1)',
+                borderWidth: 2,
+                borderDash: [6, 4],
+              },
+              highThresholdLine: {
+                type: 'line',
+                yMin: highThreshold,
+                yMax: highThreshold,
+                borderColor: 'rgba(255, 0, 0, 1)',
+                borderWidth: 2,
+                borderDash: [6, 4],
+              },
+              highvandahigh: {
+                type: 'line',
+                yMin: highThreshold + 10,
+                yMax: highThreshold + 10,
+                borderColor: '#0000',
+                borderWidth: 2,
+                borderDash: [6, 4],
+              },
+            }
+          : {},
       },
     },
     scales: {
@@ -679,9 +393,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
         },
         ticks: {
           color: '#fff',
-          font: {
-            size: 10,
-          },
+          font: { size: 10 },
           maxRotation: 45,
           minRotation: 0,
           maxTicksLimit: 5,
@@ -690,14 +402,12 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
       },
       y: {
         grid: {
-          color: `#818589`,
+          color: '#818589',
           drawBorder: false,
         },
         ticks: {
           color: '#fff',
-          font: {
-            size: 5,
-          },
+          font: { size: 5 },
           padding: 10,
           maxTicksLimit: 8,
         },
@@ -718,14 +428,35 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
 
   return (
     <div className="h-full bg-gray-900 border border-white rounded-xl shadow-xl flex flex-col p-1">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-1">
-        <h4 className="text-sm font-bold text-white truncate">
-          {text}
-        </h4>
-        {/* Live sensor value with high visibility */}
-        <div className="text-2xl font-bold font-mono text-yellow-300 bg-gray-900 px-5 py-0 rounded-lg shadow-[0_0_10px_rgba(255,215,0,0.8)] tracking-widest">
-          {latestValue !== null ? latestValue.toFixed(3) : '--'} <span className='text-sm'>masl</span>
+      {/* Header arranged into three equal parts */}
+      <div className="flex items-center mb-1">
+        {/* Left: Sensor Name */}
+        <div className="w-1/3 text-left">
+          <h4 className="text-sm font-bold text-white truncate">{text}</h4>
+        </div>
+        {/* Center: Online Data Hosting Toggle */}
+        <div className="w-1/3 flex items-center justify-center">
+          <span className="text-xs text-white mr-2">Online Mode</span>
+          <button
+            onClick={() => setOnlineDataHosting(!onlineDataHosting)}
+            className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+              onlineDataHosting ? 'bg-green-600' : 'bg-gray-600'
+            }`}
+          >
+            <span className="sr-only">Toggle Online Data Hosting</span>
+            <span
+              className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+                onlineDataHosting ? 'translate-x-[22px]' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+        {/* Right: Sensor Value */}
+        <div className="w-1/3 text-right">
+          <div className="text-2xl font-bold font-mono text-yellow-300 bg-gray-900 px-0 py-0 rounded-lg shadow-[0_0_10px_rgba(255,215,0,0.8)] tracking-widest">
+            {latestValue !== null ? latestValue.toFixed(3) : '--'}{' '}
+            <span className="text-sm">masl</span>
+          </div>
         </div>
       </div>
 
@@ -736,7 +467,6 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
 
       {/* Bottom section with status indicators and toggle switches */}
       <div className="flex justify-between items-center mt-1">
-        {/* Status Indicators arranged as: Low (circle), Normal (circle), High (circle) */}
         {showAlarms && (
           <div className="flex items-center space-x-4">
             <div className="flex items-center gap-1">
@@ -771,26 +501,13 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
             </div>
           </div>
         )}
-        {/* Toggle Switches */}
+        {/* Toggle Switches for Alerts */}
         <div className="flex items-center gap-2">
-          {/* <div className="flex items-center gap-2">
-            <span className="text-sm text-white">Alarm Mode</span>
-            <button
-              onClick={() => setShowAlarms(!showAlarms)}
-              className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-green-500 ${
-                showAlarms ? 'bg-green-600' : 'bg-gray-600'
-              }`}
-            >
-              <span className="sr-only">Toggle alarms</span>
-              <span
-                className={`absolute left-[2px] inline-block w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out ${
-                  showAlarms ? 'translate-x-[22px]' : 'translate-x-0'
-                }`}
-              />
-            </button>
-          </div> */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-white"><span className='text-green-300 font-bold'>Alerts: &nbsp;&nbsp;</span>Email</span>
+            <span className="text-[10px] text-white">
+              <span className="text-green-300 font-bold">Alerts:&nbsp;&nbsp;</span>
+              Email
+            </span>
             <button
               onClick={() => setEmailAlert(!emailAlert)}
               className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${

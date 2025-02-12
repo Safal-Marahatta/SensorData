@@ -258,3 +258,226 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
             readings.append(reading.dict())
         sensors[sensor_id] = readings
     return sensors
+
+
+
+# ===============================
+# NEW: Settings endpoints
+# ===============================
+
+from typing import List
+from sqlalchemy.orm import Session
+from pydantic import BaseModel, EmailStr
+# (If not already imported, add:)
+from fastapi import Depends
+
+# Dependency to get the database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Pydantic models for incoming settings data from the frontend
+
+class GeneralSettingsInput(BaseModel):
+    station_id: int
+    station_name: str
+    server_address: str
+    com_port: str
+    baud_rate: int
+    byte_size: int
+    parity: str
+    stopbit: int
+    poll_interval: int
+    poll_delay: int
+    log_interval: int
+
+class SensorSettingInput(BaseModel):
+    sensor_id: int
+    function_code: str
+    register_address: int
+    register_count: int
+    variable: str
+    multiplier: float
+    offset: float
+    parameter_name: str
+    unit: str
+    upper_threshold: float
+    lower_threshold: float
+
+class AlertSettingInput(BaseModel):
+    name: str
+    designation: str
+    mobile_number: str
+    email: EmailStr
+    alert_type: List[str]  # e.g. ["sms", "email"]
+
+# ----------------------------------
+# Endpoint: Save General Settings
+# ----------------------------------
+@app.post("/api/general-settings")
+async def save_general_settings(
+    settings: GeneralSettingsInput,
+    db: Session = Depends(get_db),
+    current_user: UserInDB = Depends(get_current_active_user)
+):
+    """
+    Create or update the general settings.
+    """
+    # For simplicity we assume there is only one general settings record.
+    general_setting = db.query(models.GeneralSetting).first()
+    if general_setting:
+        # Update existing record
+        general_setting.station_id = settings.station_id
+        general_setting.station_name = settings.station_name
+        general_setting.server_address = settings.server_address
+        general_setting.com_port = settings.com_port
+        general_setting.baud_rate = settings.baud_rate
+        general_setting.byte_size = settings.byte_size
+        general_setting.parity = settings.parity
+        general_setting.stopbit = settings.stopbit
+        general_setting.poll_interval = settings.poll_interval
+        general_setting.poll_delay = settings.poll_delay
+        general_setting.log_interval = settings.log_interval
+    else:
+        # Create new record
+        general_setting = models.GeneralSetting(
+            station_id=settings.station_id,
+            station_name=settings.station_name,
+            server_address=settings.server_address,
+            com_port=settings.com_port,
+            baud_rate=settings.baud_rate,
+            byte_size=settings.byte_size,
+            parity=settings.parity,
+            stopbit=settings.stopbit,
+            poll_interval=settings.poll_interval,
+            poll_delay=settings.poll_delay,
+            log_interval=settings.log_interval
+        )
+        db.add(general_setting)
+    db.commit()
+    db.refresh(general_setting)
+    return {
+        "message": "General settings saved successfully",
+        "settings": {
+            "station_id": general_setting.station_id,
+            "station_name": general_setting.station_name,
+            "server_address": general_setting.server_address,
+            "com_port": general_setting.com_port,
+            "baud_rate": general_setting.baud_rate,
+            "byte_size": general_setting.byte_size,
+            "parity": general_setting.parity,
+            "stopbit": general_setting.stopbit,
+            "poll_interval": general_setting.poll_interval,
+            "poll_delay": general_setting.poll_delay,
+            "log_interval": general_setting.log_interval,
+            "installed_date": str(general_setting.installed_date)
+        }
+    }
+
+# ----------------------------------
+# Endpoint: Save Sensor Settings
+# ----------------------------------
+@app.post("/api/sensor-settings")
+async def save_sensor_settings(
+    sensor_settings: List[SensorSettingInput],
+    db: Session = Depends(get_db),
+    current_user: UserInDB = Depends(get_current_active_user)
+):
+    """
+    Save sensor settings by creating (or updating) sensor, sensor parameter, and modbus setting records.
+    """
+    results = []
+    for sensor in sensor_settings:
+        # Look up the sensor by sensor_id; if not found, create one.
+        existing_sensor = db.query(models.Sensor).filter(models.Sensor.sensor_id == sensor.sensor_id).first()
+        if not existing_sensor:
+            # NOTE: In this example, we assign a default station_id of 1.
+            new_sensor = models.Sensor(
+                sensor_id=sensor.sensor_id,
+                sensor_name=sensor.parameter_name,  # using parameter name as sensor name
+                sensor_location="",
+                station_id=1
+            )
+            db.add(new_sensor)
+            db.commit()
+            db.refresh(new_sensor)
+            existing_sensor = new_sensor
+
+        # Create a SensorParameter record.
+        # Here we use the function_code as the parameter_code.
+        sensor_parameter = models.SensorParameter(
+            sensor_id=existing_sensor.sensor_id,
+            parameter_code=sensor.function_code,
+            parameter_name=sensor.parameter_name,
+            unit=sensor.unit,
+            upper_threshold=sensor.upper_threshold,
+            lower_threshold=sensor.lower_threshold,
+            logging_interval=60  # default logging interval; you could also use general settings here
+        )
+        db.add(sensor_parameter)
+        db.commit()
+        db.refresh(sensor_parameter)
+
+        # Create a ModbusSetting record.
+        modbus_setting = models.ModbusSetting(
+            sensor_parameter_id=sensor_parameter.id,
+            slave_id=sensor.sensor_id,  # using sensor id as the slave id
+            function_code=sensor.function_code,
+            register_address=sensor.register_address,
+            register_count=sensor.register_count,
+            variable=sensor.variable,
+            multiplier=sensor.multiplier,
+            offset=sensor.offset
+        )
+        db.add(modbus_setting)
+        db.commit()
+        db.refresh(modbus_setting)
+
+        results.append({
+            "sensor_id": sensor.sensor_id,
+            "sensor_parameter_id": sensor_parameter.id,
+            "modbus_setting_id": modbus_setting.id,
+        })
+    return {"message": "Sensor settings saved successfully", "results": results}
+
+# ----------------------------------
+# Endpoint: Save Alert Settings
+# ----------------------------------
+@app.post("/api/alert-settings")
+async def save_alert_settings(
+    alert_settings: List[AlertSettingInput],
+    db: Session = Depends(get_db),
+    current_user: UserInDB = Depends(get_current_active_user)
+):
+    """
+    Save alert recipient settings. For each alert recipient, we create one record per alert method.
+    NOTE: Because the Alert model requires a sensor_id (as a ForeignKey),
+    we assign a default sensor_id of 1. Adjust this as needed.
+    """
+    created_alerts = []
+    for alert in alert_settings:
+        for a_type in alert.alert_type:
+            contact = alert.mobile_number if a_type == "sms" else alert.email
+            new_alert = models.Alert(
+                sensor_id=1,  # default sensor id; adjust if you wish to associate alerts with a specific sensor
+                alert_type=a_type,
+                contact=contact,
+                name=alert.name,
+                Designation=alert.designation,
+                is_enabled=True
+            )
+            db.add(new_alert)
+            db.commit()
+            db.refresh(new_alert)
+            created_alerts.append({
+                "id": new_alert.id,
+                "sensor_id": new_alert.sensor_id,
+                "alert_type": new_alert.alert_type,
+                "contact": new_alert.contact,
+                "name": new_alert.name,
+                "Designation": new_alert.Designation,
+            })
+    return {"message": "Alert settings saved successfully", "alerts": created_alerts}
