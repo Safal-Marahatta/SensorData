@@ -10,6 +10,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship, declarative_base
 import datetime
+from sqlalchemy import UniqueConstraint
 
 Base = declarative_base()
 
@@ -51,26 +52,20 @@ class GeneralSetting(Base):
 
 
 class Alert(Base):
-    """
-    Alert configuration table.
-
-    Fields:
-        - id: Primary Key.
-        - general_setting_id: Foreign key linking to GeneralSetting.
-        - alert_type: Type of alert ('sms' or 'email').
-        - contact: Contact information (mobile number or email address).
-        - is_enabled: Flag indicating if the alert is active.
-    """
     __tablename__ = "alerts"
 
     id = Column(Integer, primary_key=True, index=True)
-    sensor_id = Column(Integer, ForeignKey("sensors.sensor_id"), nullable=False)#kun sensor ko alert ho ta vanne kura
-    alert_type = Column(String, nullable=False)  # e.g., 'sms' or 'email'
-    contact = Column(String, nullable=False)
-    name=Column(String)
-    Designation=Column(String)
-
+    name = Column(String, nullable=False)
+    designation = Column(String, nullable=False)
+    mobile_number = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    alert_type = Column(String, nullable=False)  # Will store comma-separated values
     is_enabled = Column(Boolean, default=True, nullable=False)
+
+    # Unique constraint for name + designation
+    __table_args__ = (
+        UniqueConstraint('name', 'designation', name='_name_designation_uc'),
+    )
 
 
 class Sensor(Base):
@@ -92,7 +87,7 @@ class Sensor(Base):
     sensor_id = Column(Integer, primary_key=True, index=True)
     sensor_name = Column(String, nullable=False)
     sensor_location = Column(String, nullable=True)
-    station_id = Column(Integer, ForeignKey("general_settings.id"), nullable=False)
+    station_id = Column(Integer, nullable=False)
     
     # Additional fields
     sensor_serial_number = Column(String, nullable=True)
@@ -120,12 +115,11 @@ class SensorParameter(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     sensor_id = Column(Integer, ForeignKey("sensors.sensor_id"), nullable=False)
-    parameter_code = Column(String, nullable=True)
+    variable = Column(String, nullable=True)
     parameter_name = Column(String, nullable=True)
     unit = Column(String, nullable=True)
     upper_threshold = Column(Float, nullable=True)
     lower_threshold = Column(Float, nullable=True)
-    logging_interval = Column(Integer, nullable=True)
 
 
 

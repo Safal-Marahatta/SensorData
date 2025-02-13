@@ -839,3 +839,179 @@ def update_general_settings(
     db.commit()
     db.refresh(new_setting)
     return new_setting
+
+#################################################################################################
+##########################################################################################################
+from typing import List
+# Pydantic model for sensor settings coming from the frontend.
+class SensorSettingCreate(BaseModel):
+    sensor_id: int
+    slave_id: int
+    function_code: str
+    register_address: int
+    register_count: int
+    variable: str            # This value will be stored in SensorParameter.parameter_code.
+    multiplier: float
+    offset: float
+    parameter_name: str
+    unit: str
+    upper_threshold: float
+    lower_threshold: float
+
+    class Config:
+        orm_mode = True
+
+@app.post("/sensor-settings")
+def save_sensor_settings(
+    sensor_settings: List[SensorSettingCreate],
+    db: Session = Depends(get_db),
+    current_user: UserInDB = Depends(admin_required)
+):
+    """
+    This endpoint receives an array of sensor settings objects.
+    For each object, it:
+      1. Checks if the sensor exists (using sensor_id).
+      2. Creates a SensorParameter record (using sensor_id, parameter_code from 'variable',
+         parameter_name, unit, upper_threshold, and lower_threshold).
+      3. Creates a ModbusSetting record referencing the new SensorParameter (and fills in the rest).
+    
+    Example payload:
+    [
+      {
+        "sensor_id": 1,
+        "slave_id": 1,
+        "function_code": "03",
+        "register_address": 40001,
+        "register_count": 2,
+        "variable": "Float",
+        "multiplier": 0.1,
+        "offset": 0,
+        "parameter_name": "Ambient Temperature",
+        "unit": "°C",
+        "upper_threshold": 40,
+        "lower_threshold": 10
+      },
+      {
+        "sensor_id": 2,
+        "slave_id": 2,
+        "function_code": "04",
+        "register_address": 30001,
+        "register_count": 1,
+        "variable": "Integer",
+        "multiplier": 1,
+        "offset": 0,
+        "parameter_name": "Relative Humidity",
+        "unit": "%",
+        "upper_threshold": 80,
+        "lower_threshold": 20
+      }
+    ]
+    """
+    created_sensor_parameters = []
+    created_modbus_settings = []
+
+    for setting in sensor_settings:
+        # 1. Check if the sensor exists.
+        sensor = db.query(models.Sensor).filter(models.Sensor.sensor_id == setting.sensor_id).first()
+        if not sensor:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"Sensor with id {setting.sensor_id} not found."
+            )
+        
+        # 2. Create a SensorParameter record.
+        sensor_param = models.SensorParameter(
+            sensor_id = setting.sensor_id,
+            variable = setting.variable,  # using 'variable' as the parameter code.
+            parameter_name = setting.parameter_name,
+            unit = setting.unit,
+            upper_threshold = setting.upper_threshold,
+            lower_threshold = setting.lower_threshold,
+        )
+        db.add(sensor_param)
+        db.flush()  # Flush to get the generated sensor_param.id
+
+        created_sensor_parameters.append(sensor_param)
+        
+        # 3. Create a ModbusSetting record referencing the SensorParameter.
+        modbus_setting = models.ModbusSetting(
+            sensor_parameter_id = sensor_param.id,
+            slave_id = setting.slave_id,
+            function_code = setting.function_code,
+            register_address = setting.register_address,
+            register_count = setting.register_count,
+            variable = setting.variable,  # You may store the same value or customize as needed.
+            multiplier = setting.multiplier,
+            offset = setting.offset
+        )
+        db.add(modbus_setting)
+        db.flush()
+        created_modbus_settings.append(modbus_setting)
+    
+    db.commit()
+    return {
+        "sensor_parameters": [sp.id for sp in created_sensor_parameters],
+        "modbus_settings": [ms.id for ms in created_modbus_settings]
+    }
+
+#######################################################################################################################################
+#endpoint for the alert settings
+
+class AlertSettingCreate(BaseModel):
+    name: str
+    designation: str
+    mobile_number: str
+    email: str
+    alert_type: list[str]  # Array of strings
+
+    class Config:
+        orm_mode = True
+
+@app.post("/alert-settings")
+def save_alert_settings(
+    alert_settings: List[AlertSettingCreate],
+    db: Session = Depends(get_db),
+    current_user: UserInDB = Depends(admin_required)
+):
+    for alert in alert_settings:
+        # Convert array to comma-separated string
+        alert_types_str = ",".join(alert.alert_type)
+        
+        # Check if exists by name + designation
+        existing = db.query(models.Alert).filter(
+            models.Alert.name == alert.name,
+            models.Alert.designation == alert.designation
+        ).first()
+
+        if existing:
+            # Update existing record
+            existing.mobile_number = alert.mobile_number
+            existing.email = alert.email
+            existing.alert_type = alert_types_str
+        else:
+            # Create new record
+            new_alert = models.Alert(
+                name=alert.name,
+                designation=alert.designation,
+                mobile_number=alert.mobile_number,
+                email=alert.email,
+                alert_type=alert_types_str
+            )
+            db.add(new_alert)
+    
+    db.commit()
+    return {"message": "Alert settings updated successfully"}
+
+
+###############################################################################
+#get for this
+@app.get("/alert-settings", response_model=List[AlertSettingCreate])
+def get_alert_settings(db: Session = Depends(get_db)):
+    alerts = db.query(models.Alert).all()
+    return [{
+        "name": a.name,
+        "designation": a.designation,
+        "mobile_number": a.mobile_number,
+        "email": a.email,
+        "alert_type": a.alert_type.split(",") if a.alert_type else []
+    } for a in alerts]

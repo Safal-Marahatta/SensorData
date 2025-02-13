@@ -792,12 +792,12 @@ function App() {
         break
       case "sensor":
         settingsToSave = sensorSettings
-        endpoint = "/api/sensor-settings"
+        endpoint = "http://127.0.0.1:8000/sensor-settings"
         setSensorError(null)
         break
       case "alert":
         settingsToSave = alertSettings
-        endpoint = "/api/alert-settings"
+        endpoint = "http://127.0.0.1:8000/alert-settings"
         setAlertError(null)
         break
       default:
