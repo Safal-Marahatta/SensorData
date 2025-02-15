@@ -658,111 +658,193 @@ function App() {
     alert: false,
   })
 
+  // useEffect(() => {
+  //   const fetchAllData = async () => {
+  //     setIsLoading(true)
+  //     try {
+  //       await Promise.all([fetchGeneralSettings(), fetchSensorSettings(), fetchAlertSettings()])
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error)
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   }
+
+  //   fetchAllData()
+  // }, [])
+
   useEffect(() => {
     const fetchAllData = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        await Promise.all([fetchGeneralSettings(), fetchSensorSettings(), fetchAlertSettings()])
+        await fetchGeneralSettings();
+        await fetchSensorSettings();
+        await fetchAlertSettings();
       } catch (error) {
-        console.error("Error fetching data:", error)
+        console.error("Error fetching data:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
+    };
+  
+    fetchAllData();
+  }, []);
+
+  // const fetchGeneralSettings = () => {
+  //   // Simulated API call
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       setGeneralSettings({
+  //         id: 1,
+  //         station_id: 1,
+  //         station_name: "Main Station",
+  //         server_address: "192.168.1.100",
+  //         com_port: "COM3",
+  //         baud_rate: 9600,
+  //         byte_size: 8,
+  //         parity: "None",
+  //         stopbit: 1,
+  //         poll_interval: 5000,
+  //         poll_delay: 1000,
+  //         log_interval: 60,
+  //         installed_date: "2023-01-01", // Example date
+  //       })
+  //       resolve(null)
+  //     }, 1000)
+  //   })
+  // }
+
+  // const fetchSensorSettings = () => {
+  //   // Simulated API call
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       setSensorSettings([
+  //         {
+  //           sensor_id: 1,
+  //           slave_id: 1,
+  //           function_code: "03",
+  //           register_address: 40001,
+  //           register_count: 2,
+  //           variable: "Float",
+  //           multiplier: 0.1,
+  //           offset: 0,
+  //           parameter_name: "Ambient Temperature",
+  //           unit: "°C",
+  //           upper_threshold: 40,
+  //           lower_threshold: 10,
+  //         },
+  //         {
+  //           sensor_id: 2,
+  //           slave_id: 2,
+  //           function_code: "04",
+  //           register_address: 30001,
+  //           register_count: 1,
+  //           variable: "Integer",
+  //           multiplier: 1,
+  //           offset: 0,
+  //           parameter_name: "Relative Humidity",
+  //           unit: "%",
+  //           upper_threshold: 80,
+  //           lower_threshold: 20,
+  //         },
+  //       ])
+  //       resolve(null)
+  //     }, 1000)
+  //   })
+  // }
+
+  
+
+  // const fetchAlertSettings = () => {
+  //   // Simulated API call
+  //   return new Promise((resolve) => {
+  //     setTimeout(() => {
+  //       setAlertSettings([
+  //         {
+  //           id: "1",
+  //           name: "John Doe",
+  //           designation: "System Administrator",
+  //           mobile_number: "+1234567890",
+  //           email: "john@example.com",
+  //           alert_type: ["sms", "email"],
+  //         },
+  //         {
+  //           id: "2",
+  //           name: "Jane Smith",
+  //           designation: "Technician",
+  //           mobile_number: "+9876543210",
+  //           email: "jane@example.com",
+  //           alert_type: ["email"],
+  //         },
+  //       ])
+  //       resolve(null)
+  //     }, 1000)
+  //   })
+  // }
+  const fetchGeneralSettings = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch('http://127.0.0.1:8000/general-settings', {
+        method: 'GET',  // Explicitly specify GET
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      if (data.length > 0) setGeneralSettings(data[0]);
+    } catch (error) {
+      console.error('Error fetching general settings:', error);
+      setGeneralError('Failed to load general settings');
     }
+  };
 
-    fetchAllData()
-  }, [])
 
-  const fetchGeneralSettings = () => {
-    // Simulated API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setGeneralSettings({
-          id: 1,
-          station_id: 1,
-          station_name: "Main Station",
-          server_address: "192.168.1.100",
-          com_port: "COM3",
-          baud_rate: 9600,
-          byte_size: 8,
-          parity: "None",
-          stopbit: 1,
-          poll_interval: 5000,
-          poll_delay: 1000,
-          log_interval: 60,
-          installed_date: "2023-01-01", // Example date
-        })
-        resolve(null)
-      }, 1000)
-    })
-  }
+  const fetchSensorSettings = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch('http://127.0.0.1:8000/sensor-settings', {
+        method: 'GET',  // Explicitly specify GET
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      setSensorSettings(data);
+    } catch (error) {
+      console.error('Error fetching sensor settings:', error);
+      setSensorError('Failed to load sensor settings');
+    }
+  };
 
-  const fetchSensorSettings = () => {
-    // Simulated API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setSensorSettings([
-          {
-            sensor_id: 1,
-            slave_id: 1,
-            function_code: "03",
-            register_address: 40001,
-            register_count: 2,
-            variable: "Float",
-            multiplier: 0.1,
-            offset: 0,
-            parameter_name: "Ambient Temperature",
-            unit: "°C",
-            upper_threshold: 40,
-            lower_threshold: 10,
-          },
-          {
-            sensor_id: 2,
-            slave_id: 2,
-            function_code: "04",
-            register_address: 30001,
-            register_count: 1,
-            variable: "Integer",
-            multiplier: 1,
-            offset: 0,
-            parameter_name: "Relative Humidity",
-            unit: "%",
-            upper_threshold: 80,
-            lower_threshold: 20,
-          },
-        ])
-        resolve(null)
-      }, 1000)
-    })
-  }
+  
+  const fetchAlertSettings = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch('http://127.0.0.1:8000/alert-settings', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) throw new Error('Failed to fetch');
+      const data = await response.json();
+      setAlertSettings(data.map((a: any) => ({
+        ...a,
+        id: String(a.id) // Convert numeric ID to string if needed
+      })));
+    } catch (error) {
+      console.error('Error fetching alert settings:', error);
+      setAlertError('Failed to load alert settings');
+    }
+  };
 
-  const fetchAlertSettings = () => {
-    // Simulated API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setAlertSettings([
-          {
-            id: "1",
-            name: "John Doe",
-            designation: "System Administrator",
-            mobile_number: "+1234567890",
-            email: "john@example.com",
-            alert_type: ["sms", "email"],
-          },
-          {
-            id: "2",
-            name: "Jane Smith",
-            designation: "Technician",
-            mobile_number: "+9876543210",
-            email: "jane@example.com",
-            alert_type: ["email"],
-          },
-        ])
-        resolve(null)
-      }, 1000)
-    })
-  }
-
+  //////////////
   const handleGeneralSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setShowConfirmation("general")

@@ -1004,7 +1004,7 @@ def save_alert_settings(
 
 
 ###############################################################################
-#get for this
+#get data for the alert settings
 @app.get("/alert-settings", response_model=List[AlertSettingCreate])
 def get_alert_settings(db: Session = Depends(get_db)):
     alerts = db.query(models.Alert).all()
@@ -1015,3 +1015,92 @@ def get_alert_settings(db: Session = Depends(get_db)):
         "email": a.email,
         "alert_type": a.alert_type.split(",") if a.alert_type else []
     } for a in alerts]
+
+####################################
+# Get for the general settings
+
+####################################
+# GET Endpoints for Settings
+####################################
+
+@app.get("/general-settings", response_model=List[GeneralSettingOut])
+def get_general_settings(db: Session = Depends(get_db)):
+    """Get all general settings"""
+    settings = db.query(models.GeneralSetting).all()
+    return settings
+
+@app.get("/sensor-settings", response_model=List[SensorSettingCreate])
+def get_sensor_settings(db: Session = Depends(get_db)):
+    """Get all sensor settings"""
+    sensor_params = db.query(models.SensorParameter, models.ModbusSetting)\
+        .join(models.ModbusSetting, 
+              models.SensorParameter.id == models.ModbusSetting.sensor_parameter_id)\
+        .all()
+    
+    return [{
+        "sensor_id": sp.sensor_id,
+        "slave_id": ms.slave_id,
+        "function_code": ms.function_code,
+        "register_address": ms.register_address,
+        "register_count": ms.register_count,
+        "variable": sp.variable,
+        "multiplier": ms.multiplier,
+        "offset": ms.offset,
+        "parameter_name": sp.parameter_name,
+        "unit": sp.unit,
+        "upper_threshold": sp.upper_threshold,
+        "lower_threshold": sp.lower_threshold
+    } for sp, ms in sensor_params]
+
+
+
+
+
+# from sqlalchemy.orm import Session
+# from models import SensorData  # Import your SensorData model
+# from datetime import datetime
+
+# # Assuming you have a get_db dependency to get the database session
+# def get_db():
+#     # Your existing database session setup
+#     pass
+
+# @app.get("/sensor-data")
+# def get_sensor_data(
+#     current_user: UserInDB = Depends(get_current_active_user),
+#     db: Session = Depends(get_db)
+# ):
+#     # Query the latest 500 valid sensor data entries
+#     sensor_data = (
+#         db.query(SensorData)
+#         .filter(
+#             SensorData.sensor_parameter_id.isnot(None),
+#             SensorData.value.isnot(None),
+#             SensorData.timestamp.isnot(None)
+#         )
+#         .order_by(SensorData.timestamp.desc())
+#         .limit(500)
+#         .all()
+#     )
+    
+#     # Group readings by sensor ID and convert to response format
+#     sensors = {}
+#     for entry in sensor_data:
+#         sensor_id = entry.sensor_parameter_id
+#         if sensor_id not in sensors:
+#             sensors[sensor_id] = []
+        
+#         # Format timestamp with 'Z' to indicate UTC
+#         formatted_time = entry.timestamp.isoformat() + "Z"
+        
+#         sensors[sensor_id].append({
+#             "value": entry.value,
+#             "sensorid": sensor_id,
+#             "timestamp": formatted_time
+#         })
+    
+#     # Reverse each sensor's readings to chronological order (oldest first)
+#     for sensor_id in sensors:
+#         sensors[sensor_id].reverse()
+    
+#     return sensors
