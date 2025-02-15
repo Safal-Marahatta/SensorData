@@ -1056,50 +1056,33 @@ def get_sensor_settings(db: Session = Depends(get_db)):
 
 
 
-# from sqlalchemy.orm import Session
-# from models import SensorData  # Import your SensorData model
-# from datetime import datetime
-
-# # Assuming you have a get_db dependency to get the database session
-# def get_db():
-#     # Your existing database session setup
-#     pass
+# from models import SensorRawData  # Use SensorRawData instead
 
 # @app.get("/sensor-data")
 # def get_sensor_data(
 #     current_user: UserInDB = Depends(get_current_active_user),
 #     db: Session = Depends(get_db)
 # ):
-#     # Query the latest 500 valid sensor data entries
 #     sensor_data = (
-#         db.query(SensorData)
-#         .filter(
-#             SensorData.sensor_parameter_id.isnot(None),
-#             SensorData.value.isnot(None),
-#             SensorData.timestamp.isnot(None)
-#         )
-#         .order_by(SensorData.timestamp.desc())
-#         .limit(500)
+#         db.query(SensorRawData)  # Update model reference
+#         .order_by(SensorRawData.timestamp.desc())
+#         .limit(50)
 #         .all()
 #     )
     
-#     # Group readings by sensor ID and convert to response format
 #     sensors = {}
 #     for entry in sensor_data:
-#         sensor_id = entry.sensor_parameter_id
+#         sensor_id = entry.sensor_parameter_id  # Group by sensor_parameter_id
 #         if sensor_id not in sensors:
 #             sensors[sensor_id] = []
         
-#         # Format timestamp with 'Z' to indicate UTC
 #         formatted_time = entry.timestamp.isoformat() + "Z"
-        
 #         sensors[sensor_id].append({
 #             "value": entry.value,
 #             "sensorid": sensor_id,
 #             "timestamp": formatted_time
 #         })
     
-#     # Reverse each sensor's readings to chronological order (oldest first)
 #     for sensor_id in sensors:
 #         sensors[sensor_id].reverse()
     

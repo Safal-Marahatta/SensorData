@@ -117,6 +117,7 @@ class SensorParameter(Base):
     sensor_id = Column(Integer, ForeignKey("sensors.sensor_id"), nullable=False)
     variable = Column(String, nullable=True)
     parameter_name = Column(String, nullable=True)
+    # parameter_code = Column(String, nullable=True)
     unit = Column(String, nullable=True)
     upper_threshold = Column(Float, nullable=True)
     lower_threshold = Column(Float, nullable=True)
@@ -170,3 +171,17 @@ class SensorData(Base):
     parameter = Column(String, nullable=True)
     value = Column(Float, nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow, nullable=True)
+
+
+
+class SensorRawData(Base):
+    __tablename__ = "sensor_raw_data"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    sensor_parameter_id = Column(Integer, nullable=False)
+    parameter = Column(String(50), nullable=False)
+    value = Column(Float, nullable=False)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+
+    def __repr__(self):
+        return f"<SensorRawData(id={self.id}, parameter={self.parameter}, value={self.value}, timestamp={self.timestamp})>"

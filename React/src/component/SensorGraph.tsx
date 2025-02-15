@@ -341,6 +341,9 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
     responsive: true,
     maintainAspectRatio: false,
     devicePixelRatio: 3,
+    animation: {
+      duration: 0, // Disable animation
+    },
     plugins: {
       legend: { display: false },
       tooltip: {
