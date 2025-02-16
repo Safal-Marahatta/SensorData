@@ -97,30 +97,46 @@ class Sensor(Base):
 
 
 
-class SensorParameter(Base):
-    """
-    Sensor Parameters table.
+# class SensorParameter(Base):
+#     """
+#     Sensor Parameters table.
 
-    Fields:
-        - id: Primary Key.
-        - sensor_id: Foreign Key linking to Sensor.
-        - parameter_code: Code identifier for the sensor parameter.
-        - parameter_name: Name of the parameter.
-        - unit: Unit of measurement.
-        - upper_threshold: Maximum threshold value.
-        - lower_threshold: Minimum threshold value.
-        - logging_interval: Interval for logging data.
-    """
+#     Fields:
+#         - id: Primary Key.
+#         - sensor_id: Foreign Key linking to Sensor.
+#         - parameter_code: Code identifier for the sensor parameter.
+#         - parameter_name: Name of the parameter.
+#         - unit: Unit of measurement.
+#         - upper_threshold: Maximum threshold value.
+#         - lower_threshold: Minimum threshold value.
+#         - logging_interval: Interval for logging data.
+#     """
+#     __tablename__ = "sensor_parameters"
+
+#     id = Column(Integer, primary_key=True, index=True)
+#     sensor_id = Column(Integer, ForeignKey("sensors.sensor_id"), nullable=False)
+#     variable = Column(String, nullable=True)
+#     parameter_name = Column(String, nullable=True, unique=True)
+#     # parameter_code = Column(String, nullable=True)
+#     unit = Column(String, nullable=True)
+#     upper_threshold = Column(Float, nullable=True)
+#     lower_threshold = Column(Float, nullable=True)
+
+
+class SensorParameter(Base):
     __tablename__ = "sensor_parameters"
 
     id = Column(Integer, primary_key=True, index=True)
     sensor_id = Column(Integer, ForeignKey("sensors.sensor_id"), nullable=False)
     variable = Column(String, nullable=True)
     parameter_name = Column(String, nullable=True)
-    # parameter_code = Column(String, nullable=True)
     unit = Column(String, nullable=True)
     upper_threshold = Column(Float, nullable=True)
     lower_threshold = Column(Float, nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint('sensor_id', 'parameter_name', name='uix_sensor_param'),
+    )
 
 
 
@@ -178,10 +194,7 @@ class SensorRawData(Base):
     __tablename__ = "sensor_raw_data"
     
     id = Column(Integer, primary_key=True, index=True)
-    sensor_parameter_id = Column(Integer, nullable=False)
+    sensor_parameter_id = Column(Integer, ForeignKey("sensor_parameters.id"), nullable=False)
     parameter = Column(String(50), nullable=False)
     value = Column(Float, nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
-
-    def __repr__(self):
-        return f"<SensorRawData(id={self.id}, parameter={self.parameter}, value={self.value}, timestamp={self.timestamp})>"

@@ -861,52 +861,106 @@ class SensorSettingCreate(BaseModel):
     class Config:
         orm_mode = True
 
+# @app.post("/sensor-settings")
+# def save_sensor_settings(
+#     sensor_settings: List[SensorSettingCreate],
+#     db: Session = Depends(get_db),
+#     current_user: UserInDB = Depends(admin_required)
+# ):
+#     """
+#     This endpoint receives an array of sensor settings objects.
+#     For each object, it:
+#       1. Checks if the sensor exists (using sensor_id).
+#       2. Creates a SensorParameter record (using sensor_id, parameter_code from 'variable',
+#          parameter_name, unit, upper_threshold, and lower_threshold).
+#       3. Creates a ModbusSetting record referencing the new SensorParameter (and fills in the rest).
+    
+#     Example payload:
+#     [
+#       {
+#         "sensor_id": 1,
+#         "slave_id": 1,
+#         "function_code": "03",
+#         "register_address": 40001,
+#         "register_count": 2,
+#         "variable": "Float",
+#         "multiplier": 0.1,
+#         "offset": 0,
+#         "parameter_name": "Ambient Temperature",
+#         "unit": "°C",
+#         "upper_threshold": 40,
+#         "lower_threshold": 10
+#       },
+#       {
+#         "sensor_id": 2,
+#         "slave_id": 2,
+#         "function_code": "04",
+#         "register_address": 30001,
+#         "register_count": 1,
+#         "variable": "Integer",
+#         "multiplier": 1,
+#         "offset": 0,
+#         "parameter_name": "Relative Humidity",
+#         "unit": "%",
+#         "upper_threshold": 80,
+#         "lower_threshold": 20
+#       }
+#     ]
+#     """
+#     created_sensor_parameters = []
+#     created_modbus_settings = []
+
+#     for setting in sensor_settings:
+#         # 1. Check if the sensor exists.
+#         sensor = db.query(models.Sensor).filter(models.Sensor.sensor_id == setting.sensor_id).first()
+#         if not sensor:
+#             raise HTTPException(
+#                 status_code=404, 
+#                 detail=f"Sensor with id {setting.sensor_id} not found."
+#             )
+        
+#         # 2. Create a SensorParameter record.
+#         sensor_param = models.SensorParameter(
+#             sensor_id = setting.sensor_id,
+#             variable = setting.variable,  # using 'variable' as the parameter code.
+#             parameter_name = setting.parameter_name,
+#             unit = setting.unit,
+#             upper_threshold = setting.upper_threshold,
+#             lower_threshold = setting.lower_threshold,
+#         )
+#         db.add(sensor_param)
+#         db.flush()  # Flush to get the generated sensor_param.id
+
+#         created_sensor_parameters.append(sensor_param)
+        
+#         # 3. Create a ModbusSetting record referencing the SensorParameter.
+#         modbus_setting = models.ModbusSetting(
+#             sensor_parameter_id = sensor_param.id,
+#             slave_id = setting.slave_id,
+#             function_code = setting.function_code,
+#             register_address = setting.register_address,
+#             register_count = setting.register_count,
+#             variable = setting.variable,  # You may store the same value or customize as needed.
+#             multiplier = setting.multiplier,
+#             offset = setting.offset
+#         )
+#         db.add(modbus_setting)
+#         db.flush()
+#         created_modbus_settings.append(modbus_setting)
+    
+#     db.commit()
+#     return {
+#         "sensor_parameters": [sp.id for sp in created_sensor_parameters],
+#         "modbus_settings": [ms.id for ms in created_modbus_settings]
+#     }
+
+
 @app.post("/sensor-settings")
 def save_sensor_settings(
     sensor_settings: List[SensorSettingCreate],
     db: Session = Depends(get_db),
     current_user: UserInDB = Depends(admin_required)
 ):
-    """
-    This endpoint receives an array of sensor settings objects.
-    For each object, it:
-      1. Checks if the sensor exists (using sensor_id).
-      2. Creates a SensorParameter record (using sensor_id, parameter_code from 'variable',
-         parameter_name, unit, upper_threshold, and lower_threshold).
-      3. Creates a ModbusSetting record referencing the new SensorParameter (and fills in the rest).
-    
-    Example payload:
-    [
-      {
-        "sensor_id": 1,
-        "slave_id": 1,
-        "function_code": "03",
-        "register_address": 40001,
-        "register_count": 2,
-        "variable": "Float",
-        "multiplier": 0.1,
-        "offset": 0,
-        "parameter_name": "Ambient Temperature",
-        "unit": "°C",
-        "upper_threshold": 40,
-        "lower_threshold": 10
-      },
-      {
-        "sensor_id": 2,
-        "slave_id": 2,
-        "function_code": "04",
-        "register_address": 30001,
-        "register_count": 1,
-        "variable": "Integer",
-        "multiplier": 1,
-        "offset": 0,
-        "parameter_name": "Relative Humidity",
-        "unit": "%",
-        "upper_threshold": 80,
-        "lower_threshold": 20
-      }
-    ]
-    """
     created_sensor_parameters = []
     created_modbus_settings = []
 
@@ -919,34 +973,49 @@ def save_sensor_settings(
                 detail=f"Sensor with id {setting.sensor_id} not found."
             )
         
-        # 2. Create a SensorParameter record.
+        # 2. Check if a SensorParameter with the same sensor_id and parameter_name exists.
+        existing_param = db.query(models.SensorParameter).filter(
+            models.SensorParameter.sensor_id == setting.sensor_id,
+            models.SensorParameter.parameter_name == setting.parameter_name
+        ).first()
+
+        if existing_param:
+            # Delete associated ModbusSettings
+            db.query(models.ModbusSetting).filter(
+                models.ModbusSetting.sensor_parameter_id == existing_param.id
+            ).delete()
+            # Delete the existing SensorParameter
+            db.delete(existing_param)
+            db.flush()  # Apply deletions immediately
+
+        # Create new SensorParameter
         sensor_param = models.SensorParameter(
-            sensor_id = setting.sensor_id,
-            variable = setting.variable,  # using 'variable' as the parameter code.
-            parameter_name = setting.parameter_name,
-            unit = setting.unit,
-            upper_threshold = setting.upper_threshold,
-            lower_threshold = setting.lower_threshold,
+            sensor_id=setting.sensor_id,
+            variable=setting.variable,
+            parameter_name=setting.parameter_name,
+            unit=setting.unit,
+            upper_threshold=setting.upper_threshold,
+            lower_threshold=setting.lower_threshold,
         )
         db.add(sensor_param)
-        db.flush()  # Flush to get the generated sensor_param.id
+        db.flush()  # Get the new sensor_param.id
 
         created_sensor_parameters.append(sensor_param)
         
-        # 3. Create a ModbusSetting record referencing the SensorParameter.
+        # Create new ModbusSetting
         modbus_setting = models.ModbusSetting(
-            sensor_parameter_id = sensor_param.id,
-            slave_id = setting.slave_id,
-            function_code = setting.function_code,
-            register_address = setting.register_address,
-            register_count = setting.register_count,
-            variable = setting.variable,  # You may store the same value or customize as needed.
-            multiplier = setting.multiplier,
-            offset = setting.offset
+            sensor_parameter_id=sensor_param.id,
+            slave_id=setting.slave_id,
+            function_code=setting.function_code,
+            register_address=setting.register_address,
+            register_count=setting.register_count,
+            variable=setting.variable,
+            multiplier=setting.multiplier,
+            offset=setting.offset
         )
         db.add(modbus_setting)
-        db.flush()
         created_modbus_settings.append(modbus_setting)
+        db.flush()
     
     db.commit()
     return {
@@ -1087,3 +1156,88 @@ def get_sensor_settings(db: Session = Depends(get_db)):
 #         sensors[sensor_id].reverse()
     
 #     return sensors
+
+
+############################################################################################################################################
+#this is the sensors data
+from models import Sensor
+# Pydantic Schema for Sensor
+class SensorSchema(BaseModel):
+    sensor_id: int
+    sensor_name: str
+    sensor_location: Optional[str] = None
+    station_id: int
+    sensor_serial_number: Optional[str] = None
+    bluetooth_code: Optional[str] = None
+    gauge_height: Optional[float] = None
+    sensor_distance: Optional[float] = None
+
+    class Config:
+        orm_mode = True
+
+# GET /sensors - Return all sensors from the database.
+@app.get("/sensors", response_model=List[SensorSchema])
+def get_sensors(db: Session = Depends(get_db)):
+    sensors = db.query(Sensor).all()
+    return sensors
+
+# POST /sensors - Create or update sensors based on the provided list.
+@app.post("/sensors", response_model=List[SensorSchema])
+def save_sensors(sensors: List[SensorSchema], db: Session = Depends(get_db)):
+    for sensor_data in sensors:
+        # Check if sensor exists in the database by sensor_id
+        sensor_db = db.query(Sensor).filter(Sensor.sensor_id == sensor_data.sensor_id).first()
+        if sensor_db:
+            # Update existing sensor
+            sensor_db.sensor_name = sensor_data.sensor_name
+            sensor_db.sensor_location = sensor_data.sensor_location
+            sensor_db.station_id = sensor_data.station_id
+            sensor_db.sensor_serial_number = sensor_data.sensor_serial_number
+            sensor_db.bluetooth_code = sensor_data.bluetooth_code
+            sensor_db.gauge_height = sensor_data.gauge_height
+            sensor_db.sensor_distance = sensor_data.sensor_distance
+        else:
+            # Create new sensor record
+            new_sensor = Sensor(
+                sensor_id=sensor_data.sensor_id,
+                sensor_name=sensor_data.sensor_name,
+                sensor_location=sensor_data.sensor_location,
+                station_id=sensor_data.station_id,
+                sensor_serial_number=sensor_data.sensor_serial_number,
+                bluetooth_code=sensor_data.bluetooth_code,
+                gauge_height=sensor_data.gauge_height,
+                sensor_distance=sensor_data.sensor_distance,
+            )
+            db.add(new_sensor)
+    db.commit()
+    # Return the updated list of sensors
+    return db.query(Sensor).all()
+
+# Run the application
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+
+
+
+##############################################################################
+#yo chai tyo frontend ma kati ota graph display garne vanera
+# Pydantic model for sensor definitions as expected by the frontend
+from models import SensorParameter
+class SensorDefinition(BaseModel):
+    id: int    # This will hold the sensor_id from SensorParameter
+    text: str  # This will hold the parameter_name from SensorParameter
+
+    class Config:
+        orm_mode = True
+
+# --- Endpoint to fetch sensor definitions ---
+@app.get("/sensorsidtext")
+def read_sensors(db: Session = Depends(get_db)):
+    sensors = db.query(SensorParameter).all()
+    if not sensors:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No sensors found")
+    # Map the sensor parameter to the frontend expected format:
+    # - id: primary key from sensor_parameters table
+    # - text: the parameter_name
+    return [{"id": sensor.id, "text": sensor.parameter_name,"upper_threshold":sensor.upper_threshold,"lower_threshold":sensor.lower_threshold } for sensor in sensors]
