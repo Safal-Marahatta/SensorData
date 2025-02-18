@@ -1,7 +1,6 @@
 // "use client"
 
 // import type React from "react"
-
 // import { useState, useEffect } from "react"
 // import { Settings } from "lucide-react"
 
@@ -28,7 +27,7 @@
 // const stopBitOptions = [1, 1.5, 2]
 // const byteSizeOptions = [5, 6, 7, 8]
 
-// export default function GeneralSettings() {
+// export default function GeneralSettingsComponent() {
 //   const [generalSettings, setGeneralSettings] = useState<GeneralSettings>({
 //     station_id: null,
 //     station_name: "",
@@ -65,11 +64,14 @@
 
 //       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
 //       const data = await response.json()
+
+//       // Only update if data is non-empty.
 //       if (Array.isArray(data) && data.length > 0) {
 //         setGeneralSettings(data[0])
-//       } else if (typeof data === "object" && data !== null) {
+//       } else if (typeof data === "object" && data !== null && Object.keys(data).length > 0) {
 //         setGeneralSettings(data)
 //       }
+//       // Otherwise, keep the default state
 //     } catch (error) {
 //       console.error("Error fetching general settings:", error)
 //       setGeneralError("Failed to load general settings")
@@ -128,21 +130,30 @@
 //         <Settings className="h-6 w-6 text-blue-400" />
 //         <h2 className="text-xl font-semibold text-white">General Settings</h2>
 //       </div>
-//       {generalError && <div className="bg-red-600 text-white p-4 rounded-md mb-4">{generalError}</div>}
+//       {generalError && (
+//         <div className="bg-red-600 text-white p-4 rounded-md mb-4">
+//           {generalError}
+//         </div>
+//       )}
 //       <form onSubmit={handleGeneralSubmit} className="space-y-4">
 //         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 //           {Object.entries(generalSettings).map(([key, value]) => {
 //             if (key === "id") return null
 //             return (
 //               <div key={key}>
-//                 <label className="block text-sm font-medium text-gray-200">{key.replace("_", " ").toUpperCase()}</label>
+//                 <label className="block text-sm font-medium text-gray-200">
+//                   {key.replace("_", " ").toUpperCase()}
+//                 </label>
 //                 {["baud_rate", "parity", "com_port", "stopbit", "byte_size"].includes(key) ? (
 //                   <select
 //                     value={value?.toString() ?? ""}
 //                     onChange={(e) =>
 //                       setGeneralSettings({
 //                         ...generalSettings,
-//                         [key]: key === "parity" || key === "com_port" ? e.target.value : Number(e.target.value),
+//                         [key]:
+//                           key === "parity" || key === "com_port"
+//                             ? e.target.value
+//                             : Number(e.target.value),
 //                       })
 //                     }
 //                     className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2"
@@ -150,12 +161,12 @@
 //                     {(key === "baud_rate"
 //                       ? baudRateOptions
 //                       : key === "parity"
-//                         ? parityOptions
-//                         : key === "com_port"
-//                           ? comPortOptions
-//                           : key === "stopbit"
-//                             ? stopBitOptions
-//                             : byteSizeOptions
+//                       ? parityOptions
+//                       : key === "com_port"
+//                       ? comPortOptions
+//                       : key === "stopbit"
+//                       ? stopBitOptions
+//                       : byteSizeOptions
 //                     ).map((option) => (
 //                       <option key={option} value={option.toString()}>
 //                         {option}
@@ -174,8 +185,8 @@
 //                       key === "log_interval"
 //                         ? "number"
 //                         : key === "installed_date"
-//                           ? "date"
-//                           : "text"
+//                         ? "date"
+//                         : "text"
 //                     }
 //                     value={value?.toString() ?? ""}
 //                     onChange={(e) => {
@@ -220,8 +231,12 @@
 //       {showConfirmation && (
 //         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
 //           <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
-//             <h3 className="text-xl font-semibold text-white mb-4">Confirm Save</h3>
-//             <p className="text-gray-300 mb-6">Do you want to save the current parameters?</p>
+//             <h3 className="text-xl font-semibold text-white mb-4">
+//               Confirm Save
+//             </h3>
+//             <p className="text-gray-300 mb-6">
+//               Do you want to save the current parameters?
+//             </p>
 //             <div className="flex justify-end space-x-4">
 //               <button
 //                 onClick={() => setShowConfirmation(false)}
@@ -242,7 +257,6 @@
 //     </div>
 //   )
 // }
-
 
 
 "use client"
@@ -389,7 +403,13 @@ export default function GeneralSettingsComponent() {
             return (
               <div key={key}>
                 <label className="block text-sm font-medium text-gray-200">
-                  {key.replace("_", " ").toUpperCase()}
+                  {key === "poll_interval"
+                    ? "POLL INTERVAL (ms)"
+                    : key === "poll_delay"
+                    ? "DELAY (ms)"
+                    : key === "log_interval"
+                    ? "LOG INTERVAL (min)"
+                    : key.replace("_", " ").toUpperCase()}
                 </label>
                 {["baud_rate", "parity", "com_port", "stopbit", "byte_size"].includes(key) ? (
                   <select

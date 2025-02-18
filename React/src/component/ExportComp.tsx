@@ -463,11 +463,11 @@ function ExportComp() {
   const colors = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c'];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-800 p-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-2xl font-semibold text-gray-800 mb-8">Export Sensor Data</h1>
         
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-gray-300 rounded-lg shadow-sm p-6 mb-8">
           <div className="space-y-6">
             {/* Date Range Selection */}
             <div>
@@ -520,7 +520,7 @@ function ExportComp() {
                 
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
-                  <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg">
+                  <div className="absolute z-10 mt-1 w-full bg-gray-50 border rounded-md shadow-lg">
                     <div className="py-1">
                       {availableSensors
                         .filter(sensor => !selectedSensors.includes(sensor))
@@ -554,7 +554,7 @@ function ExportComp() {
 
         {/* Graph Preview Section */}
         {showPreview && sensorData.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-gray-300 rounded-lg shadow-sm p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold text-gray-800">Graph Preview</h2>
               <div className="flex gap-4">

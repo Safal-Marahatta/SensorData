@@ -52,7 +52,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-600 to-blue-800 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-gray-600 to-gray-800 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
@@ -61,7 +61,7 @@ function Login() {
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
             Management Software
           </h1>
-          <span className="inline-block px-4 py-1 rounded-full bg-blue-500 text-white text-xl font-semibold">
+          <span className="inline-block px-4 py-1 rounded-full bg-gray-500 text-white text-xl font-semibold">
             DAMS
           </span>
         </div>
@@ -79,7 +79,7 @@ function Login() {
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className="h-5 w-5 text-blue-600" />
+                  <User className="h-5 w-5 text-gray-600" />
                 </div>
                 <input
                   id="username"
@@ -87,9 +87,9 @@ function Login() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border-2 border-gray-200 rounded-xl 
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                    focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent
                     transition-all duration-200 ease-in-out
-                    group-hover:border-blue-400"
+                    group-hover:border-gray-400"
                   required
                 />
               </div>
@@ -101,7 +101,7 @@ function Login() {
               </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-blue-600" />
+                  <Lock className="h-5 w-5 text-gray-600" />
                 </div>
                 <input
                   id="password"
@@ -109,15 +109,15 @@ function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-12 py-3 border-2 border-gray-200 rounded-xl
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                    focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent
                     transition-all duration-200 ease-in-out
-                    group-hover:border-blue-400"
+                    group-hover:border-gray-400"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -131,9 +131,9 @@ function Login() {
             <button
               type="submit"
               className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl
-                text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700
-                hover:from-blue-700 hover:to-blue-800
-                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                text-sm font-semibold text-white bg-gradient-to-r from-gray-600 to-gray-700
+                hover:from-gray-700 hover:to-gray-800
+                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500
                 transform transition-all duration-200 ease-in-out
                 hover:scale-[1.02] active:scale-[0.98]
                 shadow-lg hover:shadow-xl"

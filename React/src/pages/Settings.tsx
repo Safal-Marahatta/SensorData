@@ -1546,7 +1546,7 @@ import { useState, useEffect } from "react"
 import GeneralSettings from "../component/GeneralSettings"
 import SensorSettings from "../component/SensorSettings"
 import AlertRecipients from "../component/AlertRecipients"
-import SensorTable from "../component/sensortable"
+import SensorTable from "../component/SensorTable"
 
 function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true)

@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
-import Dashboard from './pages/Dashboard';
 import LiveData from './pages/LiveData';
 import Export from './pages/Export';
 import Settings from './pages/Settings';
@@ -24,7 +23,7 @@ function App() {
           <Route
             path="/"
             element={
-                <Dashboard />
+                <LiveData />
             }
           />
           <Route

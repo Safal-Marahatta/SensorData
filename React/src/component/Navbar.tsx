@@ -70,21 +70,21 @@ function Navbar() {
   const navItems = [
     { path: '/live-data', icon: Activity, label: 'Live Data' },
     { path: '/export', icon: FileDown, label: 'Export' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: 'http://127.0.0.1:8000/admin/login', icon: Settings, label: 'Settings' },
   ];
 
   return (
-    <nav className="bg-black border-b border-blue-800">
-      <div className="max-w-7xl mx-auto px-2">
+    <nav className="bg-black border-black">
+      <div className="w-full mx-auto px-4">
         <div className="flex justify-between h-12">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center">
+            <div className="flex items-center">
               <span className="text-lg font-bold text-blue-300">
                 DATA ACQUISITION AND MANAGEMENT SOFTWARE -DAMS
               </span>
-            </Link>
+            </div>
           </div>
-
+          <span className="px-8 text-yellow-500 text-sm">Runtime: 2 days 10 hrs 20 mins</span>
           <div className="flex items-center">
             {navItems.map(({ path, icon: Icon, label }) => (
               <Link
