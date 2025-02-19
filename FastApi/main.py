@@ -563,388 +563,6 @@
 
 
 
-
-# from datetime import datetime, timedelta, date
-# from typing import Optional, Dict, List
-# from fastapi import FastAPI, Depends, HTTPException, status
-# from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-# from jose import JWTError, jwt
-# from pydantic import BaseModel
-# from fastapi.middleware.cors import CORSMiddleware
-# from database import engine, SessionLocal
-# from sqlalchemy.orm import Session
-# import models
-# from sqladmin import Admin, ModelView
-# from sqladmin.authentication import AuthenticationBackend
-# from starlette.requests import Request
-# from starlette.responses import RedirectResponse
-# from starlette.middleware.sessions import SessionMiddleware
-# import random
-# # Create database tables
-# models.Base.metadata.create_all(bind=engine)
-
-# app = FastAPI()
-
-# # CORS configuration
-# origins = [
-#     "http://localhost:5173",
-# ]
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,           
-#     allow_credentials=True,
-#     allow_methods=["*"],             
-#     allow_headers=["*"],             
-# )
-
-# # JWT Configuration
-# SECRET_KEY = "your_secret_key_here"
-# ALGORITHM = "HS256"
-# ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-# # Fake users database
-# fake_users_db = {
-#     "user": {
-#         "username": "user",
-#         "hashed_password": "fakehasheduser",
-#         "role": "user",
-#     },
-#     "admin": {
-#         "username": "admin",
-#         "hashed_password": "fakehashedadmin",
-#         "role": "admin",
-#     },
-# }
-
-
-# # Admin Authentication
-# class AdminAuth(AuthenticationBackend):
-#     async def login(self, request: Request) -> bool:
-#         form = await request.form()
-#         username = form.get("username")
-#         password = form.get("password")
-        
-#         # Use the same authentication logic as your main app
-#         user = authenticate_user(fake_users_db, username, password)
-#         if user and user.role == "admin":
-#             request.session.update({"token": "admin_authenticated"})
-#             return True
-#         return False
-
-#     async def logout(self, request: Request) -> bool:
-#         request.session.clear()
-#         return True
-
-#     async def authenticate(self, request: Request) -> bool:
-#         token = request.session.get("token")
-#         if not token:
-#             return False
-#         return True
-
-# # Initialize admin with authentication
-# authentication_backend = AdminAuth(secret_key="your-secret-key")
-# admin = Admin(app, engine, authentication_backend=authentication_backend)
-
-# # Admin Panel Configuration
-# admin = Admin(app, engine)
-
-# class GeneralSettingAdmin(ModelView, model=models.GeneralSetting):
-#     column_list = [c.name for c in models.GeneralSetting.__table__.columns]
-#     can_create = True
-#     can_edit = True
-#     can_delete = True
-#     name = "General Setting"
-#     name_plural = "General Settings"
-
-# class AlertAdmin(ModelView, model=models.Alert):
-#     column_list = [c.name for c in models.Alert.__table__.columns]
-#     can_create = True
-#     can_edit = True
-#     can_delete = True
-#     name = "Alert"
-#     name_plural = "Alerts"
-
-# class SensorAdmin(ModelView, model=models.Sensor):
-#     column_list = [c.name for c in models.Sensor.__table__.columns]
-#     can_create = True
-#     can_edit = True
-#     can_delete = True
-#     name = "Sensor"
-#     name_plural = "Sensors"
-
-# class SensorParameterAdmin(ModelView, model=models.SensorParameter):
-#     column_list = [c.name for c in models.SensorParameter.__table__.columns]
-#     can_create = True
-#     can_edit = True
-#     can_delete = True
-#     name = "Sensor Parameter"
-#     name_plural = "Sensor Parameters"
-
-# class ModbusSettingAdmin(ModelView, model=models.ModbusSetting):
-#     column_list = [c.name for c in models.ModbusSetting.__table__.columns]
-#     can_create = True
-#     can_edit = True
-#     can_delete = True
-#     name = "Modbus Setting"
-#     name_plural = "Modbus Settings"
-
-# class SensorDataAdmin(ModelView, model=models.SensorData):
-#     column_list = [c.name for c in models.SensorData.__table__.columns]
-#     can_create = True
-#     can_edit = True
-#     can_delete = True
-#     name = "Sensor Data"
-#     name_plural = "Sensor Data"
-
-# class SensorRawDataAdmin(ModelView, model=models.SensorRawData):
-#     column_list = [c.name for c in models.SensorRawData.__table__.columns]
-#     can_create = True
-#     can_edit = True
-#     can_delete = True
-#     name = "Sensor Raw Data"
-#     name_plural = "Sensor Raw Data"
-
-# # Register admin views
-# admin.add_view(GeneralSettingAdmin)
-# admin.add_view(AlertAdmin)
-# admin.add_view(SensorAdmin)
-# admin.add_view(SensorParameterAdmin)
-# admin.add_view(ModbusSettingAdmin)
-# admin.add_view(SensorDataAdmin)
-# admin.add_view(SensorRawDataAdmin)
-
-
-# # Pydantic Models
-# class Token(BaseModel):
-#     access_token: str
-#     token_type: str
-
-# class TokenData(BaseModel):
-#     username: Optional[str] = None
-#     role: Optional[str] = None
-
-# class User(BaseModel):
-#     username: str
-#     role: str
-
-# class UserInDB(User):
-#     hashed_password: str
-
-# # Authentication Functions
-# def fake_hash_password(password: str) -> str:
-#     return "fakehashed" + password
-
-# def verify_password(plain_password: str, hashed_password: str) -> bool:
-#     return fake_hash_password(plain_password) == hashed_password
-
-# def get_user(db, username: str) -> Optional[UserInDB]:
-#     if username in db:
-#         user_dict = db[username]
-#         return UserInDB(**user_dict)
-#     return None
-
-# def authenticate_user(db, username: str, password: str) -> Optional[UserInDB]:
-#     user = get_user(db, username)
-#     if not user or not verify_password(password, user.hashed_password):
-#         return None
-#     return user
-
-# def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-#     to_encode = data.copy()
-#     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-#     to_encode.update({"exp": expire})
-#     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-#     return encoded_jwt
-
-# # OAuth2 setup
-# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-# # Database dependency
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
-
-# # API Endpoints
-# @app.post("/token", response_model=Token)
-# async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-#     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-#     if not user:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Incorrect username or password",
-#             headers={"WWW-Authenticate": "Bearer"},
-#         )
-#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-#     access_token = create_access_token(
-#         data={"sub": user.username, "role": user.role},
-#         expires_delta=access_token_expires,
-#     )
-#     return {"access_token": access_token, "token_type": "bearer"}
-
-# async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
-#     credentials_exception = HTTPException(
-#         status_code=status.HTTP_401_UNAUTHORIZED,
-#         detail="Could not validate credentials",
-#         headers={"WWW-Authenticate": "Bearer"},
-#     )
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         username: Optional[str] = payload.get("sub")
-#         role: Optional[str] = payload.get("role")
-#         if username is None or role is None:
-#             raise credentials_exception
-#         token_data = TokenData(username=username, role=role)
-#     except JWTError:
-#         raise credentials_exception
-#     user = get_user(fake_users_db, token_data.username)
-#     if user is None:
-#         raise credentials_exception
-#     return user
-
-# async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)) -> UserInDB:
-#     return current_user
-
-# def admin_required(current_user: UserInDB = Depends(get_current_active_user)) -> UserInDB:
-#     if current_user.role != "admin":
-#         raise HTTPException(status_code=403, detail="Not enough permissions")
-#     return current_user
-
-# # Model Schemas
-# class GeneralSettingCreate(BaseModel):
-#     station_id: Optional[int] = None
-#     station_name: str
-#     server_address: str
-#     com_port: str
-#     baud_rate: int
-#     byte_size: int
-#     parity: str
-#     stopbit: int
-#     poll_interval: int
-#     poll_delay: int
-#     log_interval: int
-#     installed_date: date
-
-#     class Config:
-#         orm_mode = True
-
-# class GeneralSettingOut(GeneralSettingCreate):
-#     id: int
-
-#     class Config:
-#         orm_mode = True
-
-# class SensorSettingCreate(BaseModel):
-#     sensor_id: int
-#     slave_id: int
-#     function_code: str
-#     register_address: int
-#     register_count: int
-#     variable: str
-#     multiplier: float
-#     offset: float
-#     parameter_name: str
-#     unit: str
-#     upper_threshold: float
-#     lower_threshold: float
-
-#     class Config:
-#         orm_mode = True
-
-# class AlertSettingCreate(BaseModel):
-#     name: str
-#     designation: str
-#     mobile_number: str
-#     email: str
-#     alert_type: list[str]
-
-#     class Config:
-#         orm_mode = True
-
-# class SensorSchema(BaseModel):
-#     sensor_id: int
-#     sensor_name: str
-#     sensor_location: Optional[str] = None
-#     station_id: int
-#     sensor_serial_number: Optional[str] = None
-#     bluetooth_code: Optional[str] = None
-#     gauge_height: Optional[float] = None
-#     sensor_distance: Optional[float] = None
-
-#     class Config:
-#         orm_mode = True
-
-# class SensorReading(BaseModel):
-#     value: float
-#     sensorid: int
-#     timestamp: str
-
-# class SensorDefinition(BaseModel):
-#     id: int
-#     text: str
-
-#     class Config:
-#         orm_mode = True
-
-# # API Routes
-# @app.get("/users/me", response_model=User)
-# async def read_users_me(current_user: UserInDB = Depends(get_current_active_user)):
-#     return User(username=current_user.username, role=current_user.role)
-
-# @app.get("/admin", response_model=User)
-# async def read_admin_data(current_user: UserInDB = Depends(admin_required)):
-#     return User(username=current_user.username, role=current_user.role)
-
-# @app.post("/signup", response_model=User)
-# async def create_user(username: str, password: str, role: str = "user"):
-#     if username in fake_users_db:
-#         raise HTTPException(status_code=400, detail="Username already exists")
-#     hashed_password = fake_hash_password(password)
-#     fake_users_db[username] = {
-#         "username": username,
-#         "hashed_password": hashed_password,
-#         "role": role,
-#     }
-#     return User(username=username, role=role)
-
-# import random
-# @app.get("/sensor-data")
-# def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
-#     sensors = {}
-#     for sensor_id in range(1, 8):
-#         readings = []
-#         now = datetime.utcnow()
-#         for i in range(100):
-#             reading_time = now - timedelta(seconds=50 - i)
-#             reading = SensorReading(
-#                 value=random.uniform(50, 52),
-#                 sensorid=sensor_id,
-#                 timestamp=reading_time.isoformat() + "Z"
-#             )
-#             readings.append(reading.dict())
-#         sensors[sensor_id] = readings
-#     return sensors
-
-# @app.post("/general-settings", response_model=GeneralSettingOut)
-# def update_general_settings(
-#     settings: GeneralSettingCreate,
-#     db: Session = Depends(get_db),
-#     current_user: UserInDB = Depends(admin_required)
-# ):
-#     existing_settings = db.query(models.GeneralSetting).all()
-#     for setting_obj in existing_settings:
-#         db.delete(setting_obj)
-#     db.commit()
-
-#     new_setting = models.GeneralSetting(**settings.dict())
-#     db.add(new_setting)
-#     db.commit()
-#     db.refresh(new_setting)
-#     return new_setting
-
 from datetime import datetime, timedelta, date
 from typing import Optional, Dict, List
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -960,8 +578,9 @@ import random
 
 from database import engine, SessionLocal
 import models as models
-from sqladmin import Admin, ModelView
+from sqladmin import Admin, ModelView,action
 from sqladmin.authentication import AuthenticationBackend
+from sqlalchemy.ext.asyncio import AsyncSession
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
@@ -1050,7 +669,7 @@ class SensorAdmin(ModelView, model=models.Sensor):
     can_edit = True
     can_delete = True
     name = "Sensor"
-    name_plural = "Sensors"
+    name_plural = "Sensor Details"
 
 class SensorParameterAdmin(ModelView, model=models.SensorParameter):
     column_list = [c.name for c in models.SensorParameter.__table__.columns]
@@ -1096,23 +715,57 @@ class AlertAdmin(ModelView, model=models.Alert):
     name = "Alert"
     name_plural = "Alerts"
 
+
+# class AlertAdmin(ModelView, model=models.Alert):
+#     column_list = [c.name for c in models.Alert.__table__.columns]
+#     can_create = True
+#     can_edit = True
+#     can_delete = True
+#     name = "Alert"
+#     name_plural = "Alerts"
+
+#     async def update_column(self, session: AsyncSession, field: str, value: bool):
+#         """
+#         Bulk update a specific column for all records.
+#         """
+#         async with session.begin():
+#             await session.execute(f"UPDATE alerts SET {field} = :value", {"value": value})
+#         await session.commit()
+
+#     @action(name="enable_email_alerts", label="Enable Email Alerts for All")
+#     async def enable_email_alerts(self, request: Request, session: AsyncSession):
+#         await self.update_column(session, "email_alert", True)
+
+#     @action(name="disable_email_alerts", label="Disable Email Alerts for All")
+#     async def disable_email_alerts(self, request: Request, session: AsyncSession):
+#         await self.update_column(session, "email_alert", False)
+
+#     @action(name="enable_sms_alerts", label="Enable SMS Alerts for All")
+#     async def enable_sms_alerts(self, request: Request, session: AsyncSession):
+#         await self.update_column(session, "sms_alert", True)
+
+#     @action(name="disable_sms_alerts", label="Disable SMS Alerts for All")
+#     async def disable_sms_alerts(self, request: Request, session: AsyncSession):
+#         await self.update_column(session, "sms_alert", False)
+
 # Register admin views
 admin.add_view(GeneralSettingAdmin)
 admin.add_view(SensorAdmin)
 admin.add_view(SensorParameterAdmin)
 admin.add_view(ModbusSettingAdmin)
-admin.add_view(SensorDataAdmin)
-admin.add_view(SensorRawDataAdmin)
+# admin.add_view(SensorDataAdmin)
+# admin.add_view(SensorRawDataAdmin)
 admin.add_view(AlertAdmin)
 
-# Pydantic Models
 class Token(BaseModel):
     access_token: str
     token_type: str
+    role: str  # Add this field
+
 
 class TokenData(BaseModel):
     username: Optional[str] = None
-    role: Optional[str] = None
+    role:str
 
 class User(BaseModel):
     username: str
@@ -1158,7 +811,23 @@ def get_db():
     finally:
         db.close()
 
-# API Endpoints
+# # API Endpoints
+# @app.post("/token", response_model=Token)
+# async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+#     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+#     if not user:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Incorrect username or password",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = create_access_token(
+#         data={"sub": user.username, "role": user.role},
+#         expires_delta=access_token_expires,
+#     )
+#     return {"access_token": access_token, "token_type": "bearer"}
+
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
@@ -1173,7 +842,10 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username, "role": user.role},
         expires_delta=access_token_expires,
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    print(user.role)
+    # Now include the role in the response
+    return {"access_token": access_token, "token_type": "bearer", "role": user.role}
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
     credentials_exception = HTTPException(
@@ -1249,7 +921,8 @@ class AlertSettingCreate(BaseModel):
     designation: str
     mobile_number: str
     email: str
-    alert_type: List[str]
+    email_alert:bool
+    sms_alert:bool
 
     class Config:
         orm_mode = True
@@ -1318,7 +991,7 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
     return sensors
 
 
-from models import SensorRawData  # Use SensorRawData instead
+#from models import SensorRawData  # Use SensorRawData instead
 
 # @app.get("/sensor-data")
 # def get_sensor_data(
@@ -1388,6 +1061,14 @@ def read_sensors(db: Session = Depends(get_db)):
     if not sensors:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No sensors found")
     # Map the sensor parameter to the frontend expected format:
-    # - id: primary key from sensor_parameters table
-    # - text: the parameter_name
+    return [{"id": sensor.id, "text": sensor.parameter_name,"upper_threshold":sensor.upper_threshold,"lower_threshold":sensor.lower_threshold,"unit":sensor.unit } for sensor in sensors]
+
+
+
+@app.get("/getuserdata")
+def read_sensors(db: Session = Depends(get_db)):
+    sensors = db.query(SensorParameter).all()
+    if not sensors:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No sensors found")
+    # Map the sensor parameter to the frontend expected format:
     return [{"id": sensor.id, "text": sensor.parameter_name,"upper_threshold":sensor.upper_threshold,"lower_threshold":sensor.lower_threshold,"unit":sensor.unit } for sensor in sensors]
