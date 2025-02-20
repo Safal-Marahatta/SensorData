@@ -71,7 +71,7 @@ import Export from "./pages/Export";
 import Settings from "./pages/Settings";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./context/ProtectedRoute";
-import { Informationpage } from "./pages/information";
+import AlertsAndPlansDisplay from "./pages/information";
 
 function App() {
   return (
@@ -91,7 +91,7 @@ function App() {
             path="/information"
             element={
               <ProtectedRoute>
-                <Informationpage />
+                <AlertsAndPlansDisplay />
               </ProtectedRoute>
             }
           />

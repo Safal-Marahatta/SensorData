@@ -192,9 +192,11 @@
 
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Settings, Activity, FileDown, LogOut, Info } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import ElapsedTimeCounter from './daycounter';
+
 
 interface NavItem {
   path: string;
@@ -204,9 +206,23 @@ interface NavItem {
 
 const Navbar: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const isActive = (path: string): boolean => location.pathname === path;
+
+
+  // Define the logout handler
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // Redirect to login page or homepage after logout
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
 
   // Base nav items available to everyone (or protected by route guards elsewhere)
   const navItems: NavItem[] = [
@@ -226,7 +242,7 @@ const Navbar: React.FC = () => {
   return (
     <nav className="bg-black border-black">
       <div className="w-full mx-auto px-4">
-        <div className="flex justify-between h-12">
+        <div className="flex justify-between items-center h-12">
           <div className="flex items-center">
             <div className="flex items-center">
               <span className="text-lg font-bold text-blue-300">
@@ -234,9 +250,11 @@ const Navbar: React.FC = () => {
               </span>
             </div>
           </div>
-          <span className="px-8 text-yellow-500 text-sm">
+          {/* <span className="px-8 text-yellow-500 text-sm">
             Runtime: 2 days 10 hrs 20 mins
-          </span>
+          </span> */}
+
+          <ElapsedTimeCounter/>
           <div className="flex items-center">
             {navItems.map(({ path, icon: Icon, label }) => (
               <Link
@@ -253,9 +271,9 @@ const Navbar: React.FC = () => {
               </Link>
             ))}
             <button
-              className="ml-3 inline-flex items-center px-3 h-12 text-sm font-medium text-blue-300 hover:text-red-400 transition-colors duration-200"
+              onClick={handleLogout} className="ml-3 inline-flex items-center px-3 h-12 text-sm font-medium text-blue-300 hover:text-red-400 transition-colors duration-200"
             >
-              <LogOut className="h-4 w-4 mr-1" />
+              <LogOut className="h-4 w-4 mr-1"/>
               Logout
             </button>
             {/* Copyright message */}

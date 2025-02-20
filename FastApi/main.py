@@ -847,6 +847,14 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer", "role": user.role}
 
 
+@app.post("/logout")
+async def logout(request: Request):
+    # Clear the session data (useful for admin or session-based auth)
+    request.session.clear()
+    return {"detail": "Successfully logged out"}
+
+
+
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -928,7 +936,7 @@ class AlertSettingCreate(BaseModel):
         orm_mode = True
 
 class SensorSchema(BaseModel):
-    sensor_id: int
+    sensor_id: int                        
     sensor_name: str
     sensor_location: Optional[str] = None
     station_id: int
@@ -1072,3 +1080,31 @@ def read_sensors(db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No sensors found")
     # Map the sensor parameter to the frontend expected format:
     return [{"id": sensor.id, "text": sensor.parameter_name,"upper_threshold":sensor.upper_threshold,"lower_threshold":sensor.lower_threshold,"unit":sensor.unit } for sensor in sensors]
+
+
+# ##to the information panel
+# @app.get("/getAlertRecipients", response_model=List[AlertSettingCreate])
+# def get_alert_recipients(db:Session=Depends(get_db)):
+#     alerts=db.query(models.Alert).all()
+#     return alerts
+
+
+# Pydantic schema that mirrors the Alert SQLAlchemy model.
+class AlertSchema(BaseModel):
+    id: int
+    name: str
+    designation: str
+    mobile_number: str
+    email: str
+    email_alert: bool
+    sms_alert: bool
+    is_enabled: bool
+
+    class Config:
+        orm_mode = True
+
+# GET endpoint to retrieve all alerts from the database.
+@app.get("/getAlertRecipients", response_model=List[AlertSchema])
+def get_all_alerts(db: Session = Depends(get_db)):
+    alerts = db.query(models.Alert).all()
+    return alerts
