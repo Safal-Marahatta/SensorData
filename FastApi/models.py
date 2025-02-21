@@ -49,7 +49,7 @@ class GeneralSetting(Base):
 
 
 
-class Sensor(Base):
+class Sensor(Base):#sensor details
     """
     Sensor table.
     """
@@ -62,8 +62,8 @@ class Sensor(Base):
     station_id = Column(Integer, ForeignKey("general_settings.id"), nullable=False)
     sensor_serial_number = Column(String, nullable=True)
     bluetooth_code = Column(String, nullable=True)
-    gauge_height = Column(Float, nullable=True)
-    sensor_distance = Column(Float, nullable=True)
+    gauge_height = Column(Float, nullable=True)#initial gauge height
+    sensor_distance = Column(Float, nullable=True)#initial sensor distance
 
     # Relationship to GeneralSetting and SensorParameter.
     station = relationship("GeneralSetting", back_populates="sensors")
@@ -207,3 +207,10 @@ class Alert(Base):
 
 
 #user lai 
+
+
+# class OperationMode(Base):
+#     id(primary)
+#     user  
+#     start(bool)
+#     timestamp

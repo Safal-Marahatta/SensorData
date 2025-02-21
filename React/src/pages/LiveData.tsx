@@ -243,6 +243,7 @@ interface Sensor {
 const App: React.FC = () => {
   const [sensorData, setSensorData] = useState<SensorData>({});
   const [sensors, setSensors] = useState<Sensor[]>([]);
+  const [oncondition,setoncondition ] = useState<Boolean>(false);
 
   // Fetch the sensor data (measurements)
   const fetchSensorData = async () => {
@@ -288,6 +289,56 @@ const App: React.FC = () => {
   }, []);
 
 
+  const fetchonoffstatus=async()=>{
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch('http://localhost:8000/getonoff', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setoncondition(data);
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching on off conditin:', error);
+    }
+  }
+
+
+  useEffect(() => {
+    fetchonoffstatus();
+
+  }, []);
+
+  const handleClick = async () => {
+    // Toggle state
+    setoncondition(!oncondition);
+    
+    // Determine the on/off value (using the current state)
+    const onoffvar = oncondition ? true : false;
+  
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch('http://localhost:8000/updateonoff', {
+        method: 'POST', // specify POST request
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json', // set header for JSON body
+        },
+        body: JSON.stringify({ on: onoffvar }), // send data as JSON
+      });
+  
+      // Optionally, process the response if needed:
+      // const result = await response.json();
+      // console.log('Server response:', result);
+    } catch (error) {
+      console.error('Error posting the data:', error);
+    }
+  };
+  
+
+
   // Dynamic grid columns based on number of sensors
   const getGridCols = (sensorCount: number) => {
     if (sensorCount === 1) return 'grid-cols-1';
@@ -312,8 +363,31 @@ const App: React.FC = () => {
     <div className="flex flex-col h-screen">
       <Navbar />
       <div className="flex-1 bg-gray-700 p-1 flex flex-col min-h-0">
-        {/* <h2 className='text-white mt-2'>Lower Solu Hydropower Project</h2> */}
-        <DigitalClock />
+        <div className='flex px-2 items-center justify-between'>
+          <p className='text-white mt-2'>Lower Solu Hydropower Project</p>
+          <DigitalClock />
+
+          <div className='flex items-center space-x-2'>
+            <p className='text-white'>Operation Start</p>
+          <button
+            onClick={handleClick}
+            className={`relative inline-flex items-center h-4 rounded-full w-8 transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-gray-900 ${
+              oncondition ? 'bg-green-600' : 'bg-gray-600'
+            }`}
+          >
+            <span className="sr-only">Toggle Online Data Hosting</span>
+            <span
+              className={`absolute left-0.5 inline-block w-3 h-3 bg-white rounded-full transition-transform duration-200 ease-in-out ${
+                oncondition ? 'translate-x-4' : 'translate-x-0'
+              }`}
+            />
+          </button>
+          </div>
+
+        </div>
+
+
+
         <div className={`grid ${getGridCols(sensors.length)} ${getGridRows(sensors.length)} gap-4 flex-1`}>
           {sensors.map((sensor) => (
             <div key={sensor.id} className="relative w-full h-full">

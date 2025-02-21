@@ -384,14 +384,22 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
                 borderWidth: 2,
                 borderDash: [6, 4],
               },
-              highvandahigh: {
+                 highvandahigh: {
+                 type: 'line',
+                 yMin: (highThreshold-lowThreshold)*0.1+highThreshold,
+                 yMax: (highThreshold-lowThreshold)*0.1+highThreshold,
+                 borderColor: '#0000',
+                 borderWidth: 2,
+                 borderDash: [6, 4],
+              },
+              lowvandalow: {
                 type: 'line',
-                yMin: highThreshold + highThreshold * 0.1,
-                yMax: highThreshold + highThreshold * 0.1,
+                yMin: lowThreshold-(highThreshold-lowThreshold)*0.1,
+                yMax: lowThreshold-(highThreshold-lowThreshold)*0.1,
                 borderColor: '#0000',
                 borderWidth: 2,
                 borderDash: [6, 4],
-              },
+             },
             }
           : {},
       },
@@ -422,7 +430,9 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
           padding: 10,
           maxTicksLimit: 8,
         },
-        beginAtZero: true,
+         beginAtZero: false,
+        // min: lowThreshold-(highThreshold-lowThreshold)*0.1,
+        // max: (highThreshold-lowThreshold)*0.1+highThreshold,
       },
     },
     interaction: {
@@ -443,7 +453,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
       <div className="flex items-center mb-1">
         {/* Left: Sensor Name */}
         <div className="w-1/3 text-left">
-          <h4 className="text-sm font-bold text-white truncate">{text}</h4>
+          <h4 className="text-xl font-bold text-white truncate">{text}</h4>
         </div>
         {/* Center: Online Data Hosting Toggle */}
         <div className="w-1/3 flex items-center justify-center">

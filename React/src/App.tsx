@@ -68,7 +68,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { LoginPage } from "./pages/Login";
 import LiveData from "./pages/LiveData";
 import Export from "./pages/Export";
-import Settings from "./pages/Settings";
+// import Settings from "./pages/Settings";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./context/ProtectedRoute";
 import AlertsAndPlansDisplay from "./pages/information";
@@ -111,14 +111,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/settings"
             element={
               <ProtectedRoute>
                 <Settings />
               </ProtectedRoute>
             }
-          />
+          /> */}
           {/* Fallback route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

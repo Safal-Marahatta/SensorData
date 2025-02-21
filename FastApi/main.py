@@ -990,7 +990,7 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
         for i in range(100):
             reading_time = now - timedelta(seconds=50 - i)
             reading = SensorReading(
-                value=random.uniform(50, 52),
+                value=random.uniform(4000,4010),
                 sensorid=sensor_id,
                 timestamp=reading_time.isoformat() + "Z"
             )
