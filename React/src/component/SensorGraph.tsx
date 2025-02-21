@@ -309,7 +309,7 @@ interface SensorGraphProps {
 
 const SensorGraph: React.FC<SensorGraphProps> = ({
   text,
-  sensorId,
+  // sensorId,
   data,
   lowThreshold,
   highThreshold,
@@ -321,6 +321,8 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
   const [sirenAlert, setSirenAlert] = useState(true);
   // New state for Online Data Hosting toggle
   const [onlineDataHosting, setOnlineDataHosting] = useState(true);
+
+  setShowAlarms(true)//just to avoid error
 
   const chartData = {
     labels: data.map((point) =>

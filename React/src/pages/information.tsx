@@ -88,6 +88,7 @@ export default function AlertsAndPlansDisplay() {
 
       } finally {
         setLoading(false);
+        console.log(loading)
       }
     };
 

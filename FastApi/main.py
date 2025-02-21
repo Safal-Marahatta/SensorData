@@ -606,7 +606,7 @@ app.add_middleware(
 # JWT Configuration
 SECRET_KEY = "your_secret_key_here"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 100000000
 
 # Fake users database
 fake_users_db = {
@@ -1108,3 +1108,34 @@ class AlertSchema(BaseModel):
 def get_all_alerts(db: Session = Depends(get_db)):
     alerts = db.query(models.Alert).all()
     return alerts
+
+
+
+
+##################on off handler###################################################
+
+from fastapi import Body
+
+# Pydantic schema for updating OperationMode
+class OperationModeSchema(BaseModel):
+    on: bool
+
+# GET endpoint to fetch the current on/off status
+@app.get("/getonoff")
+def get_on_off(db: Session = Depends(get_db)):
+    # Get the latest operation mode record by timestamp
+    op_mode = db.query(models.OperationMode).order_by(models.OperationMode.timestamp.desc()).first()
+    if op_mode is None:
+        # Return a default value if no record exists yet
+        return {"on": False}
+    return {"on": op_mode.start}
+
+# POST endpoint to update the on/off status
+@app.post("/updateonoff")
+def update_on_off(op_data: OperationModeSchema, db: Session = Depends(get_db)):
+    # Create a new OperationMode record using the provided 'on' value
+    new_op_mode = models.OperationMode(start=op_data.on)
+    db.add(new_op_mode)
+    db.commit()
+    db.refresh(new_op_mode)
+    return {"on": new_op_mode.start, "timestamp": new_op_mode.timestamp}

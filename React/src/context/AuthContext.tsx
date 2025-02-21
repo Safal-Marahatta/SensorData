@@ -1,4 +1,4 @@
-
+// // src/context/AuthContext.tsx
 // import React, {
 //   createContext,
 //   useContext,
@@ -27,7 +27,7 @@
 //   children: ReactNode;
 // }
 
-// // A helper function to decode a JWT token (Note: This does not verify the signature)
+// // A helper function to decode a JWT token (this does not verify the signature)
 // function parseJwt(token: string): any {
 //   try {
 //     const base64Url = token.split(".")[1];
@@ -58,7 +58,7 @@
 //         const decoded: any = parseJwt(token);
 //         console.log("Decoded token:", decoded);
 
-//         // Check if token exists and if it's not expired (exp is in seconds)
+//         // Check if token exists and is not expired (exp is in seconds)
 //         if (!decoded || decoded.exp * 1000 < Date.now()) {
 //           console.warn("Token expired or invalid.");
 //           localStorage.removeItem("accessToken");
@@ -71,7 +71,7 @@
 //         setUser(null);
 //       }
 //     }
-//     setLoading(false);
+//     setLoading(false); // Token check complete
 //   }, []);
 
 //   const logout = () => {
@@ -93,7 +93,6 @@
 //   }
 //   return context;
 // };
-
 
 // src/context/AuthContext.tsx
 import React, {
@@ -124,8 +123,16 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Define an interface for the decoded JWT payload
+interface JwtPayload {
+  sub: string;
+  role: "user" | "admin";
+  exp: number;
+  // Optionally include any additional properties if needed
+}
+
 // A helper function to decode a JWT token (this does not verify the signature)
-function parseJwt(token: string): any {
+function parseJwt(token: string): JwtPayload | null {
   try {
     const base64Url = token.split(".")[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -135,7 +142,8 @@ function parseJwt(token: string): any {
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
         .join("")
     );
-    return JSON.parse(jsonPayload);
+    // Type assertion to JwtPayload
+    return JSON.parse(jsonPayload) as JwtPayload;
   } catch (error) {
     console.error("Failed to parse JWT:", error);
     return null;
@@ -152,7 +160,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     if (token) {
       try {
-        const decoded: any = parseJwt(token);
+        const decoded: JwtPayload | null = parseJwt(token);
         console.log("Decoded token:", decoded);
 
         // Check if token exists and is not expired (exp is in seconds)
@@ -190,4 +198,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

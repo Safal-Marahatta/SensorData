@@ -190,23 +190,7 @@ class Alert(Base):
 
     def __str__(self):
         return f"Alert: {self.name} ({self.designation})"
-
-
-
-
-# For user account, please show only these parameters:
-# 1. Privileges
-# Online Mode: Enabled/Disabled 
-# SMS Alert: Enabled/Disabled 
-# Email Alert: Enabled/ Disabled 
-# Siren Alert: Enabled/Disabled
-# 2. Alert Settings 
-# SN, Name, Designation, SMS Alert, Email Alert
-
-
-
-
-#user lai 
+ 
 
 
 # class OperationMode(Base):
@@ -214,3 +198,19 @@ class Alert(Base):
 #     user  
 #     start(bool)
 #     timestamp
+
+
+
+class OperationMode(Base):
+    """
+    Operation Mode table.
+    """
+    __tablename__ = "operation_modes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    # user = Column(String, nullable=False)
+    start = Column(Boolean, nullable=False, default=False)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+
+    def __str__(self):
+        return f"OperationMode: User={self.user}, Start={self.start}, Timestamp={self.timestamp}"
