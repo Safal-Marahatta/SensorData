@@ -1139,3 +1139,50 @@ def update_on_off(op_data: OperationModeSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_op_mode)
     return {"on": new_op_mode.start, "timestamp": new_op_mode.timestamp}
+
+
+
+
+
+#########################export ko lagi sensor datahandler################################################
+
+# New endpoint to fetch parameter data
+class DateRange(BaseModel):
+    start: date
+    end: date
+
+class DataFetchRequest(BaseModel):
+    dateRange: DateRange
+    parameters: List[str]
+
+@app.post("/api/parameter-data")
+def get_parameter_data(req: DataFetchRequest, db: Session = Depends(get_db)):
+    # Convert start and end dates to datetime objects
+    start_datetime = datetime.combine(req.dateRange.start, datetime.min.time())
+    end_datetime = datetime.combine(req.dateRange.end, datetime.max.time())
+    
+    # Query SensorData for the given date range and parameters
+    rows = db.query(models.SensorData).filter(
+        models.SensorData.timestamp >= start_datetime,
+        models.SensorData.timestamp <= end_datetime,
+        models.SensorData.parameter.in_(req.parameters)
+    ).all()
+    
+    # Create a mapping of (date, parameter) to value
+    data_map = {}
+    for row in rows:
+        date_str = row.timestamp.strftime("%Y-%m-%d")
+        data_map[(date_str, row.parameter)] = row.value
+    
+    # Build the result set for each day in the requested range
+    results = []
+    current_date = req.dateRange.start
+    while current_date <= req.dateRange.end:
+        date_str = current_date.isoformat()
+        entry = {"timestamp": date_str}
+        for param in req.parameters:
+            entry[param] = data_map.get((date_str, param), None)
+        results.append(entry)
+        current_date += timedelta(days=1)
+    
+    return results
