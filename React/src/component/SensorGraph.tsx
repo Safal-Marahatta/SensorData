@@ -315,7 +315,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
   highThreshold,
   unit
 }) => {
-  const [showAlarms, setShowAlarms] = useState(true);
+  const [showAlarms] = useState(true);
   const [emailAlert, setEmailAlert] = useState(true);
   const [smsAlert, setSmsAlert] = useState(true);
   const [sirenAlert, setSirenAlert] = useState(true);
@@ -346,7 +346,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
     ],
   };
 
-  const options = {
+  const options= {
     responsive: true,
     maintainAspectRatio: false,
     devicePixelRatio: 3,

@@ -1061,7 +1061,7 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
         for i in range(100):
             reading_time = now - timedelta(seconds=50 - i)
             reading = SensorReading(
-                value=random.uniform(4000,4010),
+                value=random.uniform(30,60),
                 sensorid=sensor_id,
                 timestamp=reading_time.isoformat() + "Z"
             )
@@ -1070,7 +1070,7 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
     return sensors
 
 
-#from models import SensorRawData  # Use SensorRawData instead
+# from models import SensorRawData  # Use SensorRawData instead
 
 # @app.get("/sensor-data")
 # def get_sensor_data(
@@ -1101,6 +1101,56 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
 #         sensors[sensor_id].reverse()
     
 #     return sensors
+
+
+
+
+
+
+# from datetime import datetime, timedelta
+# from fastapi import HTTPException, status  # Import HTTPException and status codes
+# from models import SensorRawData  # Import the SensorRawData model
+
+# @app.get("/sensor-data")
+# def get_sensor_data(
+#     current_user: UserInDB = Depends(get_current_active_user),
+#     db: Session = Depends(get_db)
+# ):
+#     # Calculate the timestamp for one hour ago using UTC time
+#     current_datetime = datetime.utcnow()
+#     fetch_datetime = current_datetime - timedelta(hours=1)
+    
+#     # Fetch all sensor data from the last one hour, ordered by ascending timestamp
+#     sensor_data = (#note that sensordata is actually sensor raw data
+#         db.query(SensorRawData)
+#         .filter(SensorRawData.timestamp > fetch_datetime)
+#         .order_by(SensorRawData.timestamp.asc())
+#         .all()
+#     )
+    
+#     # Error handling: if no data found, raise an HTTP 404 error
+#     if not sensor_data:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="No sensor data found for the past hour sorry"
+#         )
+    
+#     sensors = {}
+#     for entry in sensor_data:
+#         sensor_id = entry.sensor_parameter_id  # Group by sensor_parameter_id
+#         if sensor_id not in sensors:
+#             sensors[sensor_id] = []
+        
+#         # Format the timestamp as ISO 8601 with a "Z" to indicate UTC
+#         formatted_time = entry.timestamp.isoformat() + "Z"
+#         sensors[sensor_id].append({
+#             "value": entry.value,
+#             "sensorid": sensor_id,#note that sensor id is actually parameter id
+#             "timestamp": formatted_time
+#         })
+    
+#     return sensors
+
 
 
 

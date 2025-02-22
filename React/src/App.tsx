@@ -63,7 +63,6 @@
 
 // export default App;
 // src/App.tsx
-import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { LoginPage } from "./pages/Login";
 import LiveData from "./pages/LiveData";

@@ -322,11 +322,14 @@ const App: React.FC = () => {
     <div className="flex flex-col h-screen">
       <Navbar />
       <div className="flex-1 bg-gray-700 p-1 flex flex-col min-h-0">
-        <div className="flex px-2 items-center justify-between">
-          <p className="text-white mt-2">Lower Solu Hydropower Project</p>
+        <div className="flex px-2 place-items-center justify-between">
+          <p className="text-white">Lower Solu Hydropower Project</p>
           <DigitalClock />
           <div className="flex items-center space-x-2">
-            <p className="text-white">Operation Start</p>
+          {oncondition?
+          (<p className="text-white">Stop Operation</p>):
+            (<p className="text-red-400">Start Operation</p>)
+          }
             <button
               onClick={handleClick}
               className={`relative inline-flex items-center h-4 rounded-full w-8 transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-gray-900 ${
