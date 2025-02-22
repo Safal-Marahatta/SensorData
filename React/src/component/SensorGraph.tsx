@@ -322,7 +322,6 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
   // New state for Online Data Hosting toggle
   const [onlineDataHosting, setOnlineDataHosting] = useState(true);
 
-  setShowAlarms(true)//just to avoid error
 
   const chartData = {
     labels: data.map((point) =>

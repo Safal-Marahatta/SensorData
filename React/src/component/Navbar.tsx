@@ -235,7 +235,7 @@ const Navbar: React.FC = () => {
     if (user.role === 'admin') {
       navItems.push({ path: 'http://127.0.0.1:8000/admin/login', icon: Settings, label: 'Settings' });
     } else {
-      navItems.push({ path: '/information', icon: Info, label: 'Information' });
+      navItems.push({ path: '/information', icon: Info, label: 'Features' });
     }
   }
 

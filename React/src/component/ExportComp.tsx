@@ -329,7 +329,7 @@ function ExportComp() {
   const fetchParameterData = async () => {
     // setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/parameter-data', {
+      const response = await fetch('http://localhost:8000/api/parameterdata', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -399,9 +399,9 @@ function ExportComp() {
   const colors = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c'];
 
   return (
-    <div className="min-h-screen bg-gray-800 p-8">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-800 mb-8">Export Parameter Data</h1>
+    <div className="min-h-screen bg-gray-700 p-8">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-2xl font-semibold text-white mb-8">Export Log Data</h1>
         
         <div className="bg-gray-300 rounded-lg shadow-sm p-6 mb-8">
           <div className="space-y-6">

@@ -652,7 +652,28 @@ admin = Admin(app, engine, authentication_backend=authentication_backend,)
 
 # Admin Panel Views
 class GeneralSettingAdmin(ModelView, model=models.GeneralSetting):
-    column_list = [c.name for c in models.GeneralSetting.__table__.columns]
+    column_list = [
+        "id", "station_id", "station_name", "server_address",
+        "com_port", "baud_rate", "byte_size", "parity",
+        "stopbit", "poll_interval", "poll_delay", "log_interval", "installed_date"
+    ]
+
+    column_labels = {
+        "id": "ID",
+        "station_id": "Station ID",
+        "station_name": "Station Name",
+        "server_address": "Server Address",
+        "com_port": "COM Port",
+        "baud_rate": "Baud Rate",
+        "byte_size": "Byte Size",
+        "parity": "Parity",
+        "stopbit": "Stop Bit",
+        "poll_interval": "Poll Interval (s)",
+        "poll_delay": "Poll Delay (ms)",
+        "log_interval": "Log Interval (min)",
+        "installed_date": "Installed Date",
+    }
+
     form_excluded_columns = ["sensors"]
     can_create = True
     can_edit = True
@@ -663,7 +684,19 @@ class GeneralSettingAdmin(ModelView, model=models.GeneralSetting):
 
 
 class SensorAdmin(ModelView, model=models.Sensor):
-    column_list = [c.name for c in models.Sensor.__table__.columns]
+    # column_list = [c.name for c in models.Sensor.__table__.columns]
+    column_list = ["sensor_id", "sensor_name", "sensor_location", "station_id", "sensor_serial_number", "bluetooth_code", "gauge_height", "sensor_distance"]
+    
+    column_labels = {
+        "sensor_id": "Sensor ID",
+        "sensor_name": "Sensor Name",
+        "sensor_location": "Sensor Location",
+        "station_id": "Station ID",
+        "sensor_serial_number": "Sensor Serial Number",
+        "bluetooth_code": "Bluetooth Code",
+        "gauge_height": "Intial Gauge Height(m)",
+        "sensor_distance": "Initial Distance(m)",
+    }
     form_excluded_columns = [ "parameters"]
     can_create = True
     can_edit = True
@@ -672,7 +705,18 @@ class SensorAdmin(ModelView, model=models.Sensor):
     name_plural = "Sensor Details"
 
 class SensorParameterAdmin(ModelView, model=models.SensorParameter):
-    column_list = [c.name for c in models.SensorParameter.__table__.columns]
+    # column_list = [c.name for c in models.SensorParameter.__table__.columns]
+
+    column_list = ["id", "sensor_id", "parameter_name", "unit", "upper_threshold", "lower_threshold"]
+
+    column_labels = {
+        "id": "ID",
+        "sensor_id": "Sensor ID",
+        "parameter_name": "Parameter Name",
+        "unit": "Unit",
+        "lower_threshold": "Lower Threshold",
+        "upper_threshold": "Upper Threshold",
+    }
     form_excluded_columns = [ "modbus_settings", "sensor_data", "sensor_raw_data"]
     can_create = True
     can_edit = True
@@ -681,8 +725,23 @@ class SensorParameterAdmin(ModelView, model=models.SensorParameter):
     name_plural = "Sensor Parameters"
 
 class ModbusSettingAdmin(ModelView, model=models.ModbusSetting):
-    column_list = [c.name for c in models.ModbusSetting.__table__.columns]
+    # column_list = [c.name for c in models.ModbusSetting.__table__.columns]
     # form_excluded_columns = ["sensor_parameter"]
+    column_list = ["id", "sensor_parameter_id", "slave_id", "function_code", "register_address", "register_count", "variable", "power", "base_value", "multiplier", "offset"]
+
+    column_labels = {
+        "id": "ID",
+        "sensor_parameter_id": "Sensor Parameter ID",
+        "slave_id": "Slave ID",
+        "function_code": "Function Code",
+        "register_address": "Register Address",
+        "register_count": "Register Count",
+        "variable": "Variable",
+        "base_value": "Base Value",
+        "power": "Power",
+        "multiplier": "Multiplier",
+        "offset": "Offset",
+    }
     can_create = True
     can_edit = True
     can_delete = True
@@ -708,7 +767,19 @@ class SensorRawDataAdmin(ModelView, model=models.SensorRawData):
     name_plural = "Sensor Raw Data"
 
 class AlertAdmin(ModelView, model=models.Alert):
-    column_list = [c.name for c in models.Alert.__table__.columns]
+    # column_list = [c.name for c in models.Alert.__table__.columns]
+    column_list = ["id", "name", "designation", "mobile_number", "email", "email_alert", "sms_alert", "is_enabled"]
+
+    column_labels = {
+        "id": "ID",
+        "name": "Name",
+        "designation": "Designation",
+        "mobile_number": "Mobile Number",
+        "email": "Email",
+        "email_alert": "Email Alert",
+        "sms_alert": "SMS Alert",
+        "is_enabled": "Is Enabled",
+    }
     can_create = True
     can_edit = True
     can_delete = True
@@ -1155,9 +1226,10 @@ class DataFetchRequest(BaseModel):
     dateRange: DateRange
     parameters: List[str]
 
-@app.post("/api/parameter-data")
+@app.post("/api/parameterdata")
 def get_parameter_data(req: DataFetchRequest, db: Session = Depends(get_db)):
     # Convert start and end dates to datetime objects
+    print("in")
     start_datetime = datetime.combine(req.dateRange.start, datetime.min.time())
     end_datetime = datetime.combine(req.dateRange.end, datetime.max.time())
     
