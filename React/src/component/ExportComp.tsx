@@ -1,10 +1,11 @@
 // import { useState, useRef } from 'react';
 // import { X, ChevronDown, Download } from 'lucide-react';
 // import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+// import { useEffect } from 'react';
 
 // interface ParameterData {
 //   timestamp: string;
-//   [key: string]: number | string;
+//   [key: string]: number | string | null;
 // }
 
 // function ExportComp() {
@@ -12,21 +13,52 @@
 //     start: '2025-01-26',
 //     end: '2025-02-02'
 //   });
-//   const [selectedParameters, setSelectedParameters] = useState(['parameter1']);
+//   const [selectedParameters, setSelectedParameters] = useState([]);
+//   const [availableParameters, setAvailableParameters] = useState([]);
 //   const [showPreview, setShowPreview] = useState(false);
 //   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 //   // const [isLoading, setIsLoading] = useState(false);
 //   const [parameterData, setParameterData] = useState<ParameterData[]>([]);
 //   const chartRef = useRef<HTMLDivElement>(null);
 
-//   // Example parameter list - replace with your actual parameter data
-//   const availableParameters = [
-//     'parameter1',
-//     'parameter2',
-//     'parameter3',
-//     'parameter4',
-//     'parameter5'
-//   ];
+//   // // Example parameter list - replace with your actual parameter data
+//   // const availableParameters = [
+//   //   'parameter1',
+//   //   'parameter2',
+//   //   'parameter3',
+//   //   'parameter4',
+//   //   'parameter5'
+//   // ];
+
+
+//   //////////////this is for fetching the parameter from the backend
+
+//   // Fetch sensor parameters from the backend using async/await
+//   useEffect(() => {
+//     const fetchParameters = async () => {
+//       try {
+//         const response = await fetch("http://localhost:8000/sensorsidtext");
+//         if (!response.ok) {
+//           throw new Error("Failed to fetch sensor parameters");
+//         }
+//         const data = await response.json();
+//         // Assuming your backend returns an array of objects with a "text" field
+//         const parameterNames = data.map(item => item.text);
+//         setAvailableParameters(parameterNames);
+//       } catch (error) {
+//         console.error("Error fetching sensor parameters:", error);
+//       }
+//     };
+
+//     fetchParameters();
+//   }, []);
+
+
+// console.log(availableParameters)
+
+//   /////////////////////////////////////////////////////////////////
+
+
 
 //   const handleRemoveParameter = (parameter: string) => {
 //     setSelectedParameters(selectedParameters.filter(p => p !== parameter));
@@ -39,62 +71,39 @@
 //     setIsDropdownOpen(false);
 //   };
 
-//   // const fetchParameterData = async () => {
-//   //   setIsLoading(true);
-//   //   try {
-//   //     // Replace with your actual API endpoint
-//   //     const response = await fetch('/api/parameter-data', {
-//   //       method: 'POST',
-//   //       headers: {
-//   //         'Content-Type': 'application/json',
-//   //       },
-//   //       body: JSON.stringify({
-//   //         dateRange,
-//   //         parameters: selectedParameters,
-//   //       }),
-//   //     });
-//   //
-//   //     if (!response.ok) {
-//   //       throw new Error('Failed to fetch parameter data');
-//   //     }
-//   //
-//   //     const data = await response.json();
-//   //     setParameterData(data);
-//   //     setShowPreview(true);
-//   //   } catch (error) {
-//   //     console.error('Error fetching parameter data:', error);
-//   //     // In a production environment, you'd want to show a proper error message to the user
-//   //   } finally {
-//   //     setIsLoading(false);
-//   //   }
-//   // };
-
-//   // Generate random data for demonstration
-//   const generateDemoData = () => {
-//     const data: ParameterData[] = [];
-//     const startDate = new Date(dateRange.start);
-//     const endDate = new Date(dateRange.end);
-    
-//     for (let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
-//       const entry: ParameterData = {
-//         timestamp: date.toISOString().split('T')[0],
-//       };
-      
-//       selectedParameters.forEach(parameter => {
-//         entry[parameter] = Math.floor(Math.random() * 100);
+//   // Function to fetch parameter data from the backend
+//   const fetchParameterData = async () => {
+//     // setIsLoading(true);
+//     try {
+//       const response = await fetch('http://localhost:8000/api/parameterdata', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({
+//           dateRange,
+//           parameters: selectedParameters,
+//         }),
 //       });
-      
-//       data.push(entry);
+
+//       if (!response.ok) {
+//         throw new Error('Failed to fetch parameter data');
+//       }
+
+//       const data = await response.json();
+//       setParameterData(data);
+//       setShowPreview(true);
+//     } catch (error) {
+//       console.error('Error fetching parameter data:', error);
+//       // In a production environment, you'd want to show a proper error message to the user
+//     } finally {
+//       // setIsLoading(false);
 //     }
-    
-//     return data;
 //   };
 
 //   const handleShowPreview = () => {
-//     // For demonstration, we'll use generated data
-//     // In production, use fetchParameterData() instead
-//     setParameterData(generateDemoData());
-//     setShowPreview(true);
+//     // For production, fetch parameter data from the backend
+//     fetchParameterData();
 //   };
 
 //   const downloadCSV = () => {
@@ -102,7 +111,7 @@
 //     const headers = ['timestamp', ...selectedParameters];
 //     const csvContent = [
 //       headers.join(','),
-//       ...parameterData.map(row => 
+//       ...parameterData.map(row =>
 //         headers.map(header => row[header]).join(',')
 //       )
 //     ].join('\n');
@@ -136,9 +145,9 @@
 //   const colors = ['#2563eb', '#dc2626', '#16a34a', '#9333ea', '#ea580c'];
 
 //   return (
-//     <div className="min-h-screen bg-gray-800 p-8">
-//       <div className="max-w-3xl mx-auto">
-//         <h1 className="text-2xl font-semibold text-gray-800 mb-8">Export Parameter Data</h1>
+//     <div className="min-h-screen bg-gray-700 p-8">
+//       <div className="max-w-6xl mx-auto">
+//         <h1 className="text-2xl font-semibold text-white mb-8">Export Log Data</h1>
         
 //         <div className="bg-gray-300 rounded-lg shadow-sm p-6 mb-8">
 //           <div className="space-y-6">
@@ -235,7 +244,7 @@
 //                   className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
 //                 >
 //                   <Download size={20} />
-//                   Download Excel
+//                   Download CSV
 //                 </button>
 //                 <button
 //                   onClick={downloadImage}
@@ -284,7 +293,7 @@
 
 
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { X, ChevronDown, Download } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -293,26 +302,44 @@ interface ParameterData {
   [key: string]: number | string | null;
 }
 
+interface DateRange {
+  start: string;
+  end: string;
+}
+
 function ExportComp() {
-  const [dateRange, setDateRange] = useState({
+  const [dateRange, setDateRange] = useState<DateRange>({
     start: '2025-01-26',
     end: '2025-02-02'
   });
-  const [selectedParameters, setSelectedParameters] = useState(['parameter1']);
-  const [showPreview, setShowPreview] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  // const [isLoading, setIsLoading] = useState(false);
+  const [selectedParameters, setSelectedParameters] = useState<string[]>([]);
+  const [availableParameters, setAvailableParameters] = useState<string[]>([]);
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  // const [isLoading, setIsLoading] = useState<boolean>(false);
   const [parameterData, setParameterData] = useState<ParameterData[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
   const chartRef = useRef<HTMLDivElement>(null);
 
-  // Example parameter list - replace with your actual parameter data
-  const availableParameters = [
-    'parameter1',
-    'parameter2',
-    'parameter3',
-    'parameter4',
-    'parameter5'
-  ];
+  // Fetch sensor parameters from the backend using async/await
+  useEffect(() => {
+    const fetchParameters = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/sensorsidtext");
+        if (!response.ok) {
+          throw new Error("Failed to fetch sensor parameters");
+        }
+        const data: { text: string }[] = await response.json();
+        const parameterNames = data.map(item => item.text);
+        setAvailableParameters(parameterNames);
+      } catch (error) {
+        console.error("Error fetching sensor parameters:", error);
+      }
+    };
+
+    fetchParameters();
+  }, []);
+
+  console.log(availableParameters);
 
   const handleRemoveParameter = (parameter: string) => {
     setSelectedParameters(selectedParameters.filter(p => p !== parameter));
@@ -344,19 +371,17 @@ function ExportComp() {
         throw new Error('Failed to fetch parameter data');
       }
 
-      const data = await response.json();
+      const data: ParameterData[] = await response.json();
       setParameterData(data);
       setShowPreview(true);
     } catch (error) {
       console.error('Error fetching parameter data:', error);
-      // In a production environment, you'd want to show a proper error message to the user
     } finally {
       // setIsLoading(false);
     }
   };
 
   const handleShowPreview = () => {
-    // For production, fetch parameter data from the backend
     fetchParameterData();
   };
 
@@ -385,7 +410,7 @@ function ExportComp() {
 
     // Use html2canvas to capture the chart
     import('html2canvas').then(({ default: html2canvas }) => {
-      html2canvas(chartRef.current!).then(canvas => {
+      html2canvas(chartRef.current as HTMLDivElement).then(canvas => {
         const link = document.createElement('a');
         link.download = `parameter_graph_${dateRange.start}_to_${dateRange.end}.png`;
         link.href = canvas.toDataURL('image/png');
@@ -412,14 +437,18 @@ function ExportComp() {
                 <input
                   type="date"
                   value={dateRange.start}
-                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setDateRange({ ...dateRange, start: e.target.value })
+                  }
                   className="border rounded-md px-3 py-2"
                 />
                 <span className="text-gray-500">→</span>
                 <input
                   type="date"
                   value={dateRange.end}
-                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setDateRange({ ...dateRange, end: e.target.value })
+                  }
                   className="border rounded-md px-3 py-2"
                 />
               </div>
@@ -479,9 +508,8 @@ function ExportComp() {
             <button
               onClick={handleShowPreview}
               // disabled={isLoading || selectedParameters.length === 0}
-              className={`bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md text-lg transition-colors`}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md text-lg transition-colors"
             >
-              {/* {isLoading ? 'Loading...' : 'Show Graph Preview'} */}
               Show Graph Preview
             </button>
           </div>
@@ -516,7 +544,7 @@ function ExportComp() {
                   <XAxis 
                     dataKey="timestamp"
                     tick={{ fontSize: 12 }}
-                    tickFormatter={(value) => value.split('-').slice(1).join('/')}
+                    tickFormatter={(value: string) => value.split('-').slice(1).join('/')}
                   />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip />

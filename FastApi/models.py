@@ -84,8 +84,8 @@ class SensorParameter(Base):
     # variable = Column(String, nullable=True)
     parameter_name = Column(String, nullable=True)
     unit = Column(String, nullable=True)
-    upper_threshold = Column(Float, nullable=True)
     lower_threshold = Column(Float, nullable=True)
+    upper_threshold = Column(Float, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("sensor_id", "parameter_name", name="uix_sensor_param"),

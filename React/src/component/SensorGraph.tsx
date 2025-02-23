@@ -29,12 +29,12 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
   highThreshold,
   unit
 }) => {
-  const [showAlarms] = useState(true);
-  const [emailAlert, setEmailAlert] = useState(true);
-  const [smsAlert, setSmsAlert] = useState(true);
-  const [sirenAlert, setSirenAlert] = useState(true);
+  const [showAlarms] = useState(false);
+  const [emailAlert] = useState(false);
+  const [smsAlert] = useState(false);
+  const [sirenAlert] = useState(false);
   // New state for Online Data Hosting toggle
-  const [onlineDataHosting, setOnlineDataHosting] = useState(true);
+  const [onlineDataHosting] = useState(false);
 
 
   const chartData = {
@@ -146,8 +146,6 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
           maxTicksLimit: 8,
         },
          beginAtZero: false,
-        // min: lowThreshold-(highThreshold-lowThreshold)*0.1,
-        // max: (highThreshold-lowThreshold)*0.1+highThreshold,
       },
     },
     interaction: {
@@ -174,7 +172,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
         <div className="w-1/3 flex items-center justify-center">
           <span className="text-xs text-white mr-2">Online Mode</span>
           <button
-            onClick={() => setOnlineDataHosting(!onlineDataHosting)}
+            // onClick={() => setOnlineDataHosting(!onlineDataHosting)}
             className={`relative inline-flex items-center h-4 rounded-full w-8 transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-gray-900 ${
               onlineDataHosting ? 'bg-green-600' : 'bg-gray-600'
             }`}
@@ -245,7 +243,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
               Email
             </span>
             <button
-              onClick={() => setEmailAlert(!emailAlert)}
+              // onClick={() => setEmailAlert(!emailAlert)}
               className={`relative inline-flex items-center h-4 rounded-full w-8 transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-gray-900 ${
                 emailAlert ? 'bg-green-600' : 'bg-gray-600'
               }`}
@@ -261,7 +259,8 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-white">SMS</span>
             <button
-              onClick={() => setSmsAlert(!smsAlert)}
+            //uncomment this in the future
+              // onClick={() => setSmsAlert(!smsAlert)}
               className={`relative inline-flex items-center h-4 rounded-full w-8 transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-gray-900 ${
                 smsAlert ? 'bg-green-600' : 'bg-gray-600'
               }`}
@@ -277,7 +276,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-white">Siren</span>
             <button
-              onClick={() => setSirenAlert(!sirenAlert)}
+              // onClick={() => setSirenAlert(!sirenAlert)}
               className={`relative inline-flex items-center h-4 rounded-full w-8 transition-colors focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-offset-gray-900 ${
                 sirenAlert ? 'bg-green-600' : 'bg-gray-600'
               }`}
