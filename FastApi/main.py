@@ -1153,6 +1153,54 @@ def get_sensor_data(current_user: UserInDB = Depends(get_current_active_user)):
 
 
 
+# from datetime import datetime, timedelta
+# from fastapi import HTTPException, status  # Import HTTPException and status codes
+# from models import SensorRawData  # Import the SensorRawData model
+
+# @app.get("/sensor-data")
+# def get_sensor_data(
+#     current_user: UserInDB = Depends(get_current_active_user),
+#     db: Session = Depends(get_db)
+# ):
+#     # Use the device's local time
+#     current_datetime = datetime.now()
+#     fetch_datetime = current_datetime - timedelta(hours=0.5)
+    
+#     # Fetch all sensor data from the last half hour, ordered by ascending timestamp
+#     sensor_data = (
+#         db.query(SensorRawData)
+#         .filter(SensorRawData.timestamp > fetch_datetime)
+#         .order_by(SensorRawData.timestamp.asc())
+#         .all()
+#     )
+    
+#     # Error handling: if no data found, raise an HTTP 404 error
+#     if not sensor_data:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="No sensor data found for the past hour sorry"
+#         )
+    
+#     sensors = {}
+#     for entry in sensor_data:
+#         sensor_id = entry.sensor_parameter_id  # Group by sensor_parameter_id
+#         if sensor_id not in sensors:
+#             sensors[sensor_id] = []
+        
+#         # Convert the stored timestamp to local time (if needed) and format it.
+#         # If your stored timestamps are naive (local), this might be sufficient.
+#         # If they are in UTC, consider converting: entry.timestamp.astimezone()
+#         formatted_time = entry.timestamp.isoformat()
+#         sensors[sensor_id].append({
+#             "value": entry.value,
+#             "sensorid": sensor_id,  # note that sensor id is actually parameter id
+#             "timestamp": formatted_time
+#         })
+    
+#     return sensors
+
+
+
 
 @app.post("/general-settings", response_model=GeneralSettingOut)
 def update_general_settings(
@@ -1267,44 +1315,54 @@ def update_on_off(op_data: OperationModeSchema, db: Session = Depends(get_db)):
 
 #########################export ko lagi sensor datahandler################################################
 
-# New endpoint to fetch parameter data
-class DateRange(BaseModel):
-    start: date
-    end: date
-
-class DataFetchRequest(BaseModel):
-    dateRange: DateRange
+from sqlalchemy import select
+class DateRangeParams(BaseModel):
+    dateRange: dict
     parameters: List[str]
 
 @app.post("/api/parameterdata")
-def get_parameter_data(req: DataFetchRequest, db: Session = Depends(get_db)):
-    # Convert start and end dates to datetime objects
-    print("in")
-    start_datetime = datetime.combine(req.dateRange.start, datetime.min.time())
-    end_datetime = datetime.combine(req.dateRange.end, datetime.max.time())
-    
-    # Query SensorData for the given date range and parameters
-    rows = db.query(models.SensorData).filter(
-        models.SensorData.timestamp >= start_datetime,
-        models.SensorData.timestamp <= end_datetime,
-        models.SensorData.parameter.in_(req.parameters)
-    ).all()
-    
-    # Create a mapping of (date, parameter) to value
-    data_map = {}
-    for row in rows:
-        date_str = row.timestamp.strftime("%Y-%m-%d")
-        data_map[(date_str, row.parameter)] = row.value
-    
-    # Build the result set for each day in the requested range
-    results = []
-    current_date = req.dateRange.start
-    while current_date <= req.dateRange.end:
-        date_str = current_date.isoformat()
-        entry = {"timestamp": date_str}
-        for param in req.parameters:
-            entry[param] = data_map.get((date_str, param), None)
-        results.append(entry)
-        current_date += timedelta(days=1)
-    
-    return results
+async def get_parameter_data(
+    params: DateRangeParams,
+    db: Session = Depends(get_db),
+    # current_user: UserInDB = Depends(get_current_active_user)
+):
+    try:
+        # Parse the provided date range
+        start_date = datetime.strptime(params.dateRange["start"], "%Y-%m-%d")
+        end_date = datetime.strptime(params.dateRange["end"], "%Y-%m-%d")
+        # Make the end_date inclusive by adding the last second of the day
+        end_date = end_date.replace(hour=23, minute=59, second=59)
+        
+        # Query the SensorData table for the given parameters and time range
+        query = (
+            select(models.SensorData)
+            .where(
+                models.SensorData.timestamp.between(start_date, end_date),
+                models.SensorData.parameter.in_(params.parameters)
+            )
+            .order_by(models.SensorData.timestamp)
+        )
+        
+        results = db.execute(query).scalars().all()
+        
+        # Group data using the full timestamp (date and time) for better granularity
+        data_points = {}
+        for record in results:
+            # Use full timestamp format to avoid aggregating multiple readings in one day
+            timestamp = record.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            if timestamp not in data_points:
+                data_points[timestamp] = {"timestamp": timestamp}
+            data_points[timestamp][record.parameter] = record.value
+        
+        # Format the grouped data into a list of records
+        formatted_data = []
+        for timestamp, values in data_points.items():
+            point = {"timestamp": timestamp}
+            for param in params.parameters:
+                point[param] = values.get(param, None)
+            formatted_data.append(point)
+        
+        return formatted_data
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
