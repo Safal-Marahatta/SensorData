@@ -29,7 +29,6 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
   highThreshold,
   unit
 }) => {
-  const [showAlarms] = useState(false);
   const [emailAlert] = useState(false);
   const [smsAlert] = useState(false);
   const [sirenAlert] = useState(false);
@@ -81,8 +80,8 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
         displayColors: false,
       },
       annotation: {
-        annotations: showAlarms
-          ? {
+        annotations:
+           {
               lowThresholdLine: {
                 type: 'line',
                 yMin: lowThreshold,
@@ -115,8 +114,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
                 borderWidth: 2,
                 borderDash: [6, 4],
              },
-            }
-          : {},
+            },
       },
     },
     scales: {
@@ -201,7 +199,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
 
       {/* Bottom section with status indicators and toggle switches */}
       <div className="flex justify-between items-center mt-2 mb-2">
-        {showAlarms && (
+        (
           <div className="flex items-center space-x-4">
             <div className="flex items-center gap-1">
               <div
@@ -234,7 +232,7 @@ const SensorGraph: React.FC<SensorGraphProps> = ({
               <span className="text-[10px] text-white">High</span>
             </div>
           </div>
-        )}
+        )
         {/* Toggle Switches for Alerts */}
         <div className="flex items-center gap-2 mt-2 mb-2">
           <div className="flex items-center gap-2">
